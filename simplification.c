@@ -3,7 +3,7 @@
 //Date: 11/09/14
 
 #include "simplification.h"
-#include "priority-queue.h"
+#include "pQueue/PriorityQueue.h"
 
 #include <stdlib.h>
 #include <math.h>
