@@ -1,4 +1,4 @@
-// Grid structure designed to store in memory what the fields in a .asc file
+// Grid type designed to store in memory what the fields in a .asc file
 typedef struct _grid {
     int ncols, nrows, xllcorner, yllcorner, cellsize, NODATA_value;
     int** values;

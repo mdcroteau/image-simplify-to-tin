@@ -31,25 +31,20 @@ void freeGrid(Grid* grid)
 int readFileIntoGrid(Grid* grid, char* filename)
 {
     int i, j;
+    char buffer[99600];
 
     FILE* f;
     if ((f = fopen(filename, "r")) == NULL)
         return 0;
 
-    fscanf(f, "ncols %d\n", &grid->ncols);
-    fscanf(f, "nrows %d\n", &grid->nrows);
-
+    grid->ncols = 332; // TODO shouldn't be hard coded
+    grid->nrows = 300;
     if (!allocateGrid(grid, grid->nrows, grid->ncols))
         return 0;
 
-    fscanf(f, "xllcorner %d\n", &grid->xllcorner);
-    fscanf(f, "yllcorner %d\n", &grid->yllcorner);
-    fscanf(f, "cellsize %d\n", &grid->cellsize);
-    fscanf(f, "NODATA_value %d\n", &grid->NODATA_value);
-
-    for (i = 0; i < grid->nrows; i++) {
-        for (j = 0; j < grid->ncols; j++) {
-            fscanf(f, "%d", &(grid->values[i][j]));
+    for (i = 0; i < grid.nrows; i++) {
+        for (j = 0; j < grid.ncols; j++) {
+            grid->values[i][j] = fgetc(f);
         }
     }
 
