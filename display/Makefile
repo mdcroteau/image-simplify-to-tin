@@ -22,10 +22,10 @@ GRAPHICS = $(LIBPATH) $(LDFLAGS)
 
 default: compile
 
-compile: display.o t_list.o
+compile: display.o list.o
 	$(CC) $? -lm $(GRAPHICS) -o view
 
-t_list.o: TriangleList.c
+list.o: llist.c
 	$(CC) $(CFLAGS) -c $< -o $@
 
 display.o: Display.c
