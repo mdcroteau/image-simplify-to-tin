@@ -8,6 +8,7 @@
 void resizeQueue(PriorityQueue* p);
 void fillGap(PriorityQueue* p, int index);
 void siftUp(PriorityQueue* p, int index);
+void siftDown(PriorityQueue* p, int index);
 
 PriorityQueue* makeQueue(){
   PriorityQueue* out = malloc(sizeof(PriorityQueue));
@@ -40,6 +41,10 @@ void deleteQueue(PriorityQueue* p)
   free(p);
 }
 
+void addItem(PriorityQueue* p, int priority, void* item)
+{
+  insert(p, makeNode(priority, item));
+}
 
 void insert(PriorityQueue* p, Node* node)
 {
@@ -53,6 +58,19 @@ void insert(PriorityQueue* p, Node* node)
   siftUp(p, p->size-1);
 }
 
+void changePriority(PriorityQueue* p, int index, int newPriority)
+{
+  int diff = newPriority - p->array[index]->priority;
+  p->array[index]->priority = newPriority;
+
+  if(diff >= 0){
+    siftUp(p, index);
+  }
+  else{
+    siftDown(p, index);
+  }
+}
+
 void resizeQueue(PriorityQueue* p)
 {
   p->array = realloc(p->array, (2*p->size+1)*sizeof(Node*));
@@ -61,6 +79,7 @@ void resizeQueue(PriorityQueue* p)
 
 Node* removeTop(PriorityQueue* p)
 {
+  if(p->size == 0) return NULL;
   Node* top = p->array[0];
   fillGap(p, 0);
   p->size--;
@@ -133,6 +152,50 @@ void siftUp(PriorityQueue* p, int index)
   }
 }
 
+void siftDown(PriorityQueue* p, int index)
+{
+  // Node cannot possibly have children
+  if(index*2 + 1 > (p->size - 2)) return;
+
+  // NOT null
+  Node* item = p->array[index];
+
+  // None, one or both of these could be null
+  Node* c1 = p->array[index*2 + 1];
+  Node* c2 = p->array[index*2 + 2];
+
+  // Both are null
+  if(c1 == NULL) return;
+
+  // Just c2 is null
+  if(c2 == NULL) {
+    if(c1->priority > item->priority) {
+      p->array[index] = c1;
+      p->array[index*2 + 1] = item;
+      siftDown(p, index*2 + 1);
+      return;
+    }
+  }
+
+  // Neither are null, and both have lower priority than item in question
+  if(item->priority > c1->priority && item->priority > c2-> priority) {
+    return;
+  }
+
+  if(c1->priority > c2->priority){
+    p->array[index] = c1;
+    p->array[index*2 + 1] = item;
+    siftDown(p, index*2 + 2);
+    return;
+  }
+  else{
+    p->array[index] = c2;
+    p->array[index*2 + 2] = item;
+    siftDown(p, index*2 + 2);
+    return;
+  }
+}
+
 void printQueuePriorities(PriorityQueue* p)
 {
   printf(     "Size is: %d\n", p->size);
@@ -172,18 +235,27 @@ int main(int argc, char** argv)
   Node* n;
 
   printf("Building the queue\n");
-  for(int i=0; i<100000; i++){
-    n = makeNode(rand()%10000, (void*)0);
-    insert(p, n);
+  for(int i=0; i<10; i++){
+    //n = makeNode(rand()%10000, (void*)0);
+    addItem(p, 10-i, n);
+    //insert(p, n);
     assertHeap(p);
   }
+  changePriority(p, 3, 3);
+  assertHeap(p);
+  changePriority(p, 3, 20);
+  assertHeap(p);
+  changePriority(p, 5, 17);
+  assertHeap(p);
+  changePriority(p, 1, 2);
+  assertHeap(p);
+  changePriority(p, 9, 2);
+  assertHeap(p);
+  changePriority(p, 8, 100);
+  assertHeap(p);
+  printQueuePriorities(p);
 
-  printf("Emptying the queue\n");
-  for(int i=0; i<100000; i++){
-    n = removeTop(p);
-    deleteNode(n);
-    assertHeap(p);
-  }
+  while(removeTop(p) != NULL);
 
   printf("Deleting the queue\n");
   deleteQueue(p);

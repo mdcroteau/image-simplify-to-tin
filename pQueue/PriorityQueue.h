@@ -17,7 +17,9 @@ PriorityQueue* makeQueue();
 
 Node* makeNode(int priority, void* item);
 
-void addItem(PriorityQueue*, int priority, void* item);
+void addItem(PriorityQueue* p, int priority, void* item);
+
+void changePriority(PriorityQueue* p, int index, int newPriority);
 
 void deleteNode(Node* node);
 
