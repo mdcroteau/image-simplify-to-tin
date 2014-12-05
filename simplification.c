@@ -72,13 +72,13 @@ TIN* simplify(TIN* tin, Grid* g, double epsilon)
     Triangle* topRight = (Triangle *) malloc(sizeof(Triangle));
     initializeTriangle(topRight, g, 0, 0, 0, g.cols - 1, g.rows - 1, g.cols - 1);
 
-    bottomLeft->t1 = topRight;
+    bottomLeft->t1 = NULL;
     bottomLeft->t2 = NULL:
-    bottomLeft->t3 = NULL:
+    bottomLeft->t3 = topRight:
 
-    topRight->t1 = bottomLeft;
+    topRight->t1 = NULL;
     topRight->t2 = NULL:
-    topRight->t3 = NULL:
+    topRight->t3 = bottomLeft:
 
     tin->triangle = upperLeft;
 
@@ -153,11 +153,12 @@ TIN* simplify(TIN* tin, Grid* g, double epsilon)
         Triangle* newT3 = (Triangle *) malloc(sizeof(Triangle));
 
         // Initialize newT1
-        newT1->v1 = maxErrorVertex;
-        newT1->v2 = containsLargestErrorVertex->v1;
-        newT1->v3 = containsLargestErrorVertex->v2;
+        newT1->v1 = containsLargestErrorVertex->v1;
+        newT1->v2 = containsLargestErrorVertex->v2;
+        newT1->v3 = maxErrorVertex;
 
-        containsLargestErrorVertex->t1->t1 = newT1; // TODO check assumption that t->t1->t1 == t 
+        if (containsLargestErrorVertex->t1 != NULL)
+            containsLargestErrorVertex->t1->t1 = newT1; // TODO check assumption that t->t1->t1 == t
         newT1->t1 = containsLargestErrorVertex->t1;
         newT1->t2 = newT2;
         newT1->t3 = newT3;
@@ -167,17 +168,19 @@ TIN* simplify(TIN* tin, Grid* g, double epsilon)
         newT2->v2 = containsLargestErrorVertex->v2;
         newT2->v3 = containsLargestErrorVertex->v3;
 
-        containsLargestErrorVertex->t2->t2 = newT2;
+        if (containsLargestErrorVertex->t2 != NULL)
+            containsLargestErrorVertex->t2->t2 = newT2;
         newT2->t1 = newT1;
         newT2->t2 = containsLargestErrorVertex->t2;
         newT2->t3 = newT3;
 
         // Initialize newT3
-        newT3->v1 = maxErrorVertex;
-        newT3->v2 = containsLargestErrorVertex->v1;
+        newT3->v1 = containsLargestErrorVertex->v1;
+        newT3->v2 = maxErrorVertex;
         newT3->v3 = containsLargestErrorVertex->v3;
 
-        containsLargestErrorVertex->t3->t3 = newT3;
+        if (containsLargestErrorVertex->t3 != NULL)
+            containsLargestErrorVertex->t3->t3 = newT3;
         newT3->t1 = newT1;
         newT3->t2 = newT2;
         newT3->t3 = containsLargestErrorVertex->t3;
@@ -214,12 +217,12 @@ TIN* simplify(TIN* tin, Grid* g, double epsilon)
                 }
             } else if (triangleContains(newT2, v)) {
                 v->triangle = newT2;
-                LList_insert_at_head(vListT1, (void *)v);
+                LList_insert_at_head(vListT2, (void *)v);
 
                 int error = computeError(newT2, v);
-                if (error >= maxErrorT1) {
-                    maxErrorT1 = error;
-                    vertexT1 = v;
+                if (error >= maxErrorT2) {
+                    maxErrorT2 = error;
+                    vertexT2 = v;
                 }
             } else if (triangleContains(newT3, v)) {
                 v->triangle = newT3;
