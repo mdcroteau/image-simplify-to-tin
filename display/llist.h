@@ -4,12 +4,12 @@ typedef struct node_t {
   void* item;
   struct node_t *next;
   struct node_t *prev;
-} Node;
+} LNode;
 
 
 typedef struct llist_t {
-  Node* head;
-  Node* tail;
+  LNode* head;
+  LNode* tail;
   int size;  //number of elements in the list 
 } LList;
 
@@ -26,11 +26,11 @@ int LList_size(LList* l);
 
 
 /* return the head of the list */
-Node *LList_head(LList *l);
+LNode *LList_head(LList *l);
 
 
 /* return the tail of the list */
-Node *LList_tail(LList *l);
+LNode *LList_tail(LList *l);
 
 
 /* create a new node with the given item and insert it in the  list at the head */
@@ -41,12 +41,12 @@ void LList_insert_at_tail(LList *l, void* item);
 
 /* delete the node at the tail from the list and return it. It does
    NOT free the node.  */
-Node* LList_delete_at_tail(LList *l);
+LNode* LList_delete_at_tail(LList *l);
 
 
 /* assume n is pointing to a node in l; delete it from the list (link
    its predeccor to it's sucessor). It does NOT free the node.  */
-void  LList_delete(LList* l, Node* n);
+void  LList_delete(LList* l, LNode* n);
 
 
 /* delete and free all nodes in the list */

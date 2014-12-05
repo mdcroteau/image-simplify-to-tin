@@ -22,18 +22,18 @@ int LList_size(LList* l) {
   return l->size;
 } 
 
-Node* LList_head(LList *l) {
+LNode* LList_head(LList *l) {
   return l->head;
 }
 
 /* return the tail of the list */
-Node* LList_tail(LList *l) {
+LNode* LList_tail(LList *l) {
   return l->tail;
 }
 
 /* create a new node with value=key and insert it in the  list at the head */
 void LList_insert_at_head(LList *l, void* item) {
-  Node* newHead = malloc(sizeof(Node));
+  LNode* newHead = malloc(sizeof(LNode));
   assert(newHead);
 
   // Case of empty list
@@ -58,7 +58,7 @@ void LList_insert_at_head(LList *l, void* item) {
 
 void LList_insert_at_tail(LList *l, void* item)\
 {
-  Node* newTail = malloc(sizeof(Node));
+  LNode* newTail = malloc(sizeof(LNode));
 
   // Case of empty list
   if(l->head == NULL){
@@ -81,10 +81,10 @@ void LList_insert_at_tail(LList *l, void* item)\
 
 /* delete the node at the tail from the list and return it. It does
    NOT free the node.  */ 
-Node* LList_delete_at_tail(LList *l) {
+LNode* LList_delete_at_tail(LList *l) {
   if(l == NULL) return NULL;
   if(l->tail == NULL) return NULL; // Empty list
-  Node* toReturn = l->tail;
+  LNode* toReturn = l->tail;
   
   if(l->tail == l->head){
     l->tail = NULL;
@@ -101,7 +101,7 @@ Node* LList_delete_at_tail(LList *l) {
 
 /* assume n is pointing to a node in l; delete it from the list (link
    its predeccor to it's sucessor). It does NOT free the node.  */
-void  LList_delete(LList* l, Node* n) {
+void  LList_delete(LList* l, LNode* n) {
   n->prev->next = n->next;
   n->next->prev = n->prev;
   l->size = l->size -1;
@@ -110,9 +110,9 @@ void  LList_delete(LList* l, Node* n) {
 
 /* delete and free all nodes in the list */
 void LList_delete_all(LList* l) {
-  Node* nextDeletion = l->head;
+  LNode* nextDeletion = l->head;
   while(nextDeletion != NULL){
-    Node* temp = nextDeletion;
+    LNode* temp = nextDeletion;
     nextDeletion = nextDeletion->next;
     free(temp);
   }
