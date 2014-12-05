@@ -3,7 +3,7 @@
 //Date: 11/09/14
 
 // TODO use Daniel's generic LList
-#include "LList/llist.h"
+#include "llist.h"
 
 typedef struct _grid {
     int rows, cols;

@@ -15,49 +15,43 @@ void initializeTriangle(Triangle *t, Grid* g, int row1, int col1, int row2, int 
     t.triangle.v1.row = row1;
     t.triangle.v1.col = col1;
     t.triangle.v1.value = get(g, row1, col1);
-    set(g, row1, col1, g->NODATA_value);
     
     // Second vertex
     t.triangle.v2 = (Vertex *) malloc(sizeof(Vertex));
     t.triangle.v2.row = row2;
     t.triangle.v2.col = col2;
     t.triangle.v2.value = get(g, row2, col2);
-    set(g, row2, col2, g->NODATA_value);
     
     // Third vertex
     t.triangle.v3 = (Vertex *) malloc(sizeof(Vertex));
     t.triangle.v3.row = row3;
     t.triangle.v3.col = col3;
     t.triangle.v3.value = get(g, row3, col3);
-    set(g, row3, col3, g->NODATA_value);
 }
 
-// TODO
-double linearlyInterpolate(Vertex* v1, Vertex* v2, Vertex* v3, int row, int col) 
+double linearlyInterpolate(Vertex* a, Vertex* b, Vertex* c, int row, int col) 
 {
+    double abx = b->col - a->col;
+    double aby = b->row - a->row;
+    double abz = b->value - a->value;
+
+    double acx = c->col - a->col;
+    double acy = c->row - a->row;
+    double acz = c->value - a->value;
+
+    double crossx = aby*acz - abz*acy;
+    double crossy = abz*acx - abx*acz;
+    double crossz = abx*acy - aby*acx;
+    double d = -(crossx*a->col + crossy*a->row + crossz*a->value);
+
+    return (-crossx*col - crossy*row - d) / crossz;
 }
 
 double computeError(Triangle* t, Vertex* v)
 {
-    Vertex v1;
-    v1.row = 0;
-    v1.col = 0;
-    v1.value = get(g, v1.row, v1.col);
-
-    Vertex v2;
-    if (row > col) {
-        v2.row = row - 1;
-        v2.col = 0;
-    } else {
-        v2.row = 0;
-        v2.col = col - 1;
-    }
-    v2.value = get(g, v2.row, v2.col);
-
-    Vertex v3;
-    v3.row = row - 1;
-    v3.col = col - 1;
-    v3.value = get(g, v3.row, v3.col);
+    Vertex* v1 = t->v1;
+    Vertex* v2 = t->v2;
+    Vertex* v3 = t->v3;
 
     double fromTin = linearlyInterpolate(&v1, &v2, &v3, row, col);
     return abs(fromTin - (double)get(g, row, col));
@@ -71,7 +65,7 @@ int triangleContains(Vertex* v, Triangle* t)
 TIN* simplify(TIN* tin, Grid* g, double epsilon) 
 {
     // Initialize TIN with 4 corner points
-    // TODO make triangle initilization prettier
+    // TODO refactor triangle initilization
     Triangle* bottomLeft = (Triangle *) malloc(sizeof(Triangle));
     initializeTriangle(bottomLeft, g, 0, 0, g.rows - 1, 0, g.rows - 1, g.cols - 1);
 
@@ -103,7 +97,11 @@ TIN* simplify(TIN* tin, Grid* g, double epsilon)
 
     for (row = 0; row < g->rows; row++) {
         for (col = 0; col < g->cols; col++) {
-            if (get(g, row, col) != g->NODATA_value) {
+            if ((row == 0 && col == 0) ||
+                (row == 0 && col == cols-1) ||
+                (row == rows-1 && col == 0) ||
+                (row == rows-1 && col == cols-1)) {
+
                 Vertex* v = (Vertex *) malloc(sizeof(Vertex));
                 v->row = row;
                 v->col = col;
@@ -113,7 +111,6 @@ TIN* simplify(TIN* tin, Grid* g, double epsilon)
                     v->triangle = bottomLeft;
                     LList_insert_at_head(vListBottomLeft, (void *)v);
 
-                    // TODO implement computeError
                     int error = computeError(bottomLeft, v);
                     if (error >= maxErrorBottomLeft) {
                         maxErrorBottomLeft = error;
@@ -188,7 +185,6 @@ TIN* simplify(TIN* tin, Grid* g, double epsilon)
         tin->triangle = newT1;
 
         // Compute errors of all points whose errors have changed
-        // TODO implement triangleContains
         LList* vertices = containsLargestErrorVertex->vList;
         LNode* node = vertices->head; 
 
@@ -249,6 +245,7 @@ TIN* simplify(TIN* tin, Grid* g, double epsilon)
         insert(q, nodeT3);
 
         // After retriangulation, free old triangle
+        LList_free(containsLargestErrorVertex->vList);
         free(containsLargestErrorVertex);
 
         // Set maxError to the error of the vertex with highest error in q
