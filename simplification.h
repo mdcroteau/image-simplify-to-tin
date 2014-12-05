@@ -20,6 +20,7 @@ typedef struct _vertex {
     Triange* triangle;      // Triangle containing vertex
 } Vertex;
 
+// t1 shares edge v1-v2, t2 shares edge v2-v3, t3 shares edge v3-v1
 typedef struct _triangle {
     Vertex* v1, v2, v3;    // Vertices of triangle
     Triangle* t1, t2, t3;  // Adjacent triangles
