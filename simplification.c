@@ -8,7 +8,8 @@
 #include <stdlib.h>
 #include <math.h>
 
-void initializeTriangle(Triangle *t, Grid* g, int row1, int col1, int row2, int col2, int row3, int col3) {
+void initializeTriangle(Triangle *t, Grid* g, int row1, int col1, int row2, int col2, int row3, int col3) 
+{
     // First vertex
     t.triangle.v1 = (Vertex *) malloc(sizeof(Vertex));
     t.triangle.v1.row = row1;
@@ -32,10 +33,12 @@ void initializeTriangle(Triangle *t, Grid* g, int row1, int col1, int row2, int 
 }
 
 // TODO
-double linearlyInterpolate(Vertex* v1, Vertex* v2, Vertex* v3, int row, int col) {
+double linearlyInterpolate(Vertex* v1, Vertex* v2, Vertex* v3, int row, int col) 
+{
 }
 
-double computeErrorInitialConfig(TIN* tin, Grid* g, int row, int col) {
+double computeError(Triangle* t, Vertex* v)
+{
     Vertex v1;
     v1.row = 0;
     v1.col = 0;
@@ -60,8 +63,15 @@ double computeErrorInitialConfig(TIN* tin, Grid* g, int row, int col) {
     return abs(fromTin - (double)get(g, row, col));
 }
 
-TIN* simplify(TIN* tin, Grid* g, double epsilon) {
+// TODO
+int triangleContains(Vertex* v, Triangle* t) 
+{
+}
+
+TIN* simplify(TIN* tin, Grid* g, double epsilon) 
+{
     // Initialize TIN with 4 corner points
+    // TODO make triangle initilization prettier
     Triangle* bottomLeft = (Triangle *) malloc(sizeof(Triangle));
     initializeTriangle(bottomLeft, g, 0, 0, g.rows - 1, 0, g.rows - 1, g.cols - 1);
 
@@ -74,7 +84,7 @@ TIN* simplify(TIN* tin, Grid* g, double epsilon) {
 
     topRight->t1 = bottomLeft;
     topRight->t2 = NULL:
-    topRight->t2 = NULL:
+    topRight->t3 = NULL:
 
     tin->triangle = upperLeft;
 
@@ -82,33 +92,65 @@ TIN* simplify(TIN* tin, Grid* g, double epsilon) {
     PriorityQueue* q = makeQueue();
     
     // Compute errors of all remaining grid points
+    // For each triangle, add point with max error into priority queue
+    int maxErrorBottomLeft = 0;
+    Vertex v* vertexBottomLeft;
+    LList* vListBottomLeft = LList_init();
+
+    int maxErrorTopRight = 0;
+    Vertex v* vertexTopRight;
+    LList* vListTopRight = LList_init();
+
     for (row = 0; row < g->rows; row++) {
         for (col = 0; col < g->cols; col++) {
             if (get(g, row, col) != g->NODATA_value) {
-                Vertex v = (Vertex *) malloc(sizeof(Vertex));
+                Vertex* v = (Vertex *) malloc(sizeof(Vertex));
                 v->row = row;
                 v->col = col;
                 v->value = g->values[row][col];
 
-                int error = computeErrorInitialConfig(tin, g, row, col);
-                Node* n = makeNode(error, (void *)v);
-                insert(q, n);
+                if (row > col) {
+                    v->triangle = bottomLeft;
+                    LList_insert_at_head(vListBottomLeft, (void *)v);
+
+                    // TODO implement computeError
+                    int error = computeError(bottomLeft, v);
+                    if (error >= maxErrorBottomLeft) {
+                        maxErrorBottomLeft = error;
+                        vertexBottomLeft = v;
+                    }
+                } else {
+                    v->triangle = topRight;
+                    LList_insert_at_head(vListTopRight, (void *)v);
+
+                    int error = computeError(topRight, v);
+                    if (error >= maxErrorTopRight) {
+                        maxErrorTopRight = error;
+                        vertexTopRight = v;
+                    }
+                }
             }
         }
     }
+
+    Node* nodeBottomLeft = makeNode(maxErrorBottomLeft, (void *)vertexBottomLeft);
+    insert(q, nodeBottomLeft);
+
+    Node* nodeTopRight = makeNode(maxErrorTopRight, (void *)vertexTopRight);
+    insert(q, nodeTopRight);
     
-    Node* maxErrorNode = removeTop(p);
+    // Main algorithm
+    Node* maxErrorNode = removeTop(q);
     while (maxErrorNode->priority > epsilon) {
+
         // Find point with largest error
         Vertex* maxErrorVertex = (Vertex *)maxErrorNode->item;
 
         // Add largest error point to TIN
-        // TODO implement findTriangleContainingVertex
-        // TODO when will seg faults happen?
-        // TODO double check the logic
-        Triangle* containsLargestErrorVertex = findTriangleContainingVertex(&tin, largestErrorVertex);
-        // TODO doesn't need to loop thru TIN
+        Triangle* containsLargestErrorVertex = maxErrorVertex->triangle;
 
+        // TODO when will seg faults happen?
+        // TODO double check this
         Triangle* newT1 = (Triangle *) malloc(sizeof(Triangle));
         Triangle* newT2 = (Triangle *) malloc(sizeof(Triangle));
         Triangle* newT3 = (Triangle *) malloc(sizeof(Triangle));
@@ -144,10 +186,70 @@ TIN* simplify(TIN* tin, Grid* g, double epsilon) {
         newT3->t3 = containsLargestErrorVertex->t3;
 
         tin->triangle = newT1;
-        free(containsLargestErrorVertex);
 
         // Compute errors of all points whose errors have changed
-        // TODO
+        // TODO implement triangleContains
+        LList* vertices = containsLargestErrorVertex->vList;
+        LNode* node = vertices->head; 
+
+        int maxErrorT1 = 0;
+        Vertex v* vertexT1;
+        LList* vListT1 = LList_init();
+
+        int maxErrorT2 = 0;
+        Vertex v* vertexT2;
+        LList* vListT2 = LList_init();
+
+        int maxErrorT3 = 0;
+        Vertex v* vertexT3;
+        LList* vListT3 = LList_init();
+
+        while (node != NULL) {
+            Vertex* v = (Vertex *) node->value;
+
+            if (triangleContains(newT1, v)) {
+                v->triangle = newT1;
+                LList_insert_at_head(vListT1, (void *)v);
+
+                int error = computeError(newT1, v);
+                if (error >= maxErrorT1) {
+                    maxErrorT1 = error;
+                    vertexT1 = v;
+                }
+            } else if (triangleContains(newT2, v)) {
+                v->triangle = newT2;
+                LList_insert_at_head(vListT1, (void *)v);
+
+                int error = computeError(newT2, v);
+                if (error >= maxErrorT1) {
+                    maxErrorT1 = error;
+                    vertexT1 = v;
+                }
+            } else if (triangleContains(newT3, v)) {
+                v->triangle = newT3;
+                LList_insert_at_head(vListT3, (void *)v);
+
+                int error = computeError(newT3, v);
+                if (error >= maxErrorT3) {
+                    maxErrorT3 = error;
+                    vertexT3 = v;
+                }
+            }
+            
+            node = node->next;
+        }
+
+        Node* nodeT1 = makeNode(maxErrorT1, (void *)vertexT1);
+        insert(q, nodeT1);
+
+        Node* nodeT2 = makeNode(maxErrorT2, (void *)vertexT2);
+        insert(q, nodeT2);
+
+        Node* nodeT3 = makeNode(maxErrorT3, (void *)vertexT3);
+        insert(q, nodeT3);
+
+        // After retriangulation, free old triangle
+        free(containsLargestErrorVertex);
 
         // Set maxError to the error of the vertex with highest error in q
         maxErrorNode = removeTop(p);
@@ -158,8 +260,8 @@ TIN* simplify(TIN* tin, Grid* g, double epsilon) {
 
 // The main method
 // TODO
-int main(int argc, char** args) {
-    
+int main(int argc, char** args) 
+{
     float epsilon = 0.0; //take from command line - TBU
     
     TIN tin;

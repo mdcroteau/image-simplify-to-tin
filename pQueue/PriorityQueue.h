@@ -12,7 +12,6 @@ typedef struct pQueue_ {
     int size;
 } PriorityQueue;
 
-
 PriorityQueue* makeQueue();
 
 Node* makeNode(int priority, void* item);

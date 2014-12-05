@@ -2,6 +2,9 @@
 //Authors: Croteau, Imhoff, Zeller
 //Date: 11/09/14
 
+// TODO use Daniel's generic LList
+#include "LList/llist.h"
+
 typedef struct _grid {
     int rows, cols;
     int xllcorner, yllcorner, cellsize, NODATA_value;
@@ -13,12 +16,14 @@ typedef struct _grid {
 // } Color;
 
 typedef struct _vertex {
-    int row, col, value;    // Value will become of type Color
+    int row, col, value;    // Value will eventually be of type Color
+    Triange* triangle;      // Triangle containing vertex
 } Vertex;
 
 typedef struct _triangle {
     Vertex* v1, v2, v3;    // Vertices of triangle
     Triangle* t1, t2, t3;  // Adjacent triangles
+    LList* vList;          // Linked list of vertices contained in triangle 
     int visited;           // For drawing
 } Triangle;
 
