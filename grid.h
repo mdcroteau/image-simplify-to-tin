@@ -1,7 +1,14 @@
+// Color type designed to store RGB values
+typedef struct _color {
+    int red;
+    int green;
+    int blue;
+} Color;
+
 // Grid type designed to store in memory what the fields in a .asc file
 typedef struct _grid {
-    int ncols, nrows, xllcorner, yllcorner, cellsize, NODATA_value;
-    int** values;
+    int ncols, nrows;
+    Color** color;
 } Grid;
 
 // Allocates a two dimensional array of ints to be used by the Grid struct
@@ -38,14 +45,7 @@ void printGrid(Grid* grid);
 
 // Check whether (i,j) is a valid index into the grid
 // @param grid, a pointer to the grid to check bounds on
-// @param i, is grid->values[i][j] within the bounds of the two dim array?
-// @param j, is grid->values[i][j] within the bounds of the two dim array?
+// @param i, is grid->color[i][j] within the bounds of the two dim array?
+// @param j, is grid->color[i][j] within the bounds of the two dim array?
 // @returns a boolean indicating whether (i,j) is a valid index
 int inBoundsOnGrid(Grid* grid, int i, int j);
-
-// Check whether there is actual data at point (i,j) on grid
-// @param grid, a pointer to the grid to check
-// @param i, is grid->values[i][j] equal to grid->NODATA_value
-// @param j, is grid->values[i][j] equal to grid->NODATA_value
-// @returns a boolean indicating whether there is actual data at point (i,j)
-int noDataAtPoint(Grid* grid, int i, int j);
