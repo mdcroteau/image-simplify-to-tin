@@ -2,7 +2,7 @@
 #include <stdio.h>
 #include <assert.h>
 
-#include "PriorityQueue.h"
+#include "pqueue.h"
 
 // Internal functions for the queue
 void resizeQueue(PriorityQueue* p);
@@ -205,59 +205,4 @@ void printQueuePriorities(PriorityQueue* p)
     printf("     Priority: %d\n", n->priority);
   }
   printf("______-----------______\n");
-}
-
-// Check to make sure the PriorityQueue maintians Heap qualities
-void assertHeap(PriorityQueue* p)
-{
-  for(int i=0; i<p->size; i++){
-    int priority = p->array[i]->priority;
-    if(2*i+1 < p->size){
-      assert(p->array[2*i+1]->priority <= priority);
-      break;
-    }
-    if(2*i+2 < p->size){
-      assert(p->array[2*i+2]->priority <= priority);
-      break;
-    }
-  }
-
-  for(int i=p->size; i<p->arraySize; i++){
-    assert(!p->array[i]);
-  }
-}
-
-// Tester
-int main(int argc, char** argv)
-{
-  PriorityQueue* p = makeQueue();
-
-  Node* n;
-
-  printf("Building the queue\n");
-  for(int i=0; i<10; i++){
-    //n = makeNode(rand()%10000, (void*)0);
-    addItem(p, 10-i, n);
-    //insert(p, n);
-    assertHeap(p);
-  }
-  changePriority(p, 3, 3);
-  assertHeap(p);
-  changePriority(p, 3, 20);
-  assertHeap(p);
-  changePriority(p, 5, 17);
-  assertHeap(p);
-  changePriority(p, 1, 2);
-  assertHeap(p);
-  changePriority(p, 9, 2);
-  assertHeap(p);
-  changePriority(p, 8, 100);
-  assertHeap(p);
-  printQueuePriorities(p);
-
-  while(removeTop(p) != NULL);
-
-  printf("Deleting the queue\n");
-  deleteQueue(p);
-  return 0;
 }

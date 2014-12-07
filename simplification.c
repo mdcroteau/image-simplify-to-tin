@@ -3,7 +3,7 @@
 //Date: 11/09/14
 
 #include "simplification.h"
-#include "pQueue/PriorityQueue.h"
+#include "pqueue.h"
 
 #include <stdlib.h>
 #include <math.h>
@@ -11,22 +11,22 @@
 void initializeTriangle(Triangle *t, Grid* g, int row1, int col1, int row2, int col2, int row3, int col3) 
 {
     // First vertex
-    t.triangle.v1 = (Vertex *) malloc(sizeof(Vertex));
-    t.triangle.v1.row = row1;
-    t.triangle.v1.col = col1;
-    t.triangle.v1.value = get(g, row1, col1);
+    t->v1 = (Vertex *) malloc(sizeof(Vertex));
+    t->v1->row = row1;
+    t->v1->col = col1;
+    t->v1->value = get(g, row1, col1);
     
     // Second vertex
-    t.triangle.v2 = (Vertex *) malloc(sizeof(Vertex));
-    t.triangle.v2.row = row2;
-    t.triangle.v2.col = col2;
-    t.triangle.v2.value = get(g, row2, col2);
+    t->v2 = (Vertex *) malloc(sizeof(Vertex));
+    t->v2->row = row2;
+    t->v2->col = col2;
+    t->v2->value = get(g, row2, col2);
     
     // Third vertex
-    t.triangle.v3 = (Vertex *) malloc(sizeof(Vertex));
-    t.triangle.v3.row = row3;
-    t.triangle.v3.col = col3;
-    t.triangle.v3.value = get(g, row3, col3);
+    t->v3 = (Vertex *) malloc(sizeof(Vertex));
+    t->v3->row = row3;
+    t->v3->col = col3;
+    t->v3->value = get(g, row3, col3);
 }
 
 double linearlyInterpolate(Vertex* a, Vertex* b, Vertex* c, int row, int col) 
@@ -47,40 +47,39 @@ double linearlyInterpolate(Vertex* a, Vertex* b, Vertex* c, int row, int col)
     return (-crossx*col - crossy*row - d) / crossz;
 }
 
-double computeError(Triangle* t, Vertex* v)
+double computeError(Grid* g, Triangle* t, Vertex* v)
 {
     Vertex* v1 = t->v1;
     Vertex* v2 = t->v2;
     Vertex* v3 = t->v3;
 
-    double fromTin = linearlyInterpolate(&v1, &v2, &v3, row, col);
-    return abs(fromTin - (double)get(g, row, col));
+    double fromTin = linearlyInterpolate(v1, v2, v3, v->row, v->col);
+    return abs(fromTin - (double)get(g, v->row, v->col));
 }
 
-// TODO
-int triangleContains(Vertex* v, Triangle* t) 
+// TODO take from Daniel's version
+int triangleContains(Triangle* t, Vertex* v)
 {
 }
 
 TIN* simplify(TIN* tin, Grid* g, double epsilon) 
 {
     // Initialize TIN with 4 corner points
-    // TODO refactor triangle initilization
     Triangle* bottomLeft = (Triangle *) malloc(sizeof(Triangle));
-    initializeTriangle(bottomLeft, g, 0, 0, g.rows - 1, 0, g.rows - 1, g.cols - 1);
+    initializeTriangle(bottomLeft, g, 0, 0, g->rows - 1, 0, g->rows - 1, g->cols - 1);
 
     Triangle* topRight = (Triangle *) malloc(sizeof(Triangle));
-    initializeTriangle(topRight, g, 0, 0, 0, g.cols - 1, g.rows - 1, g.cols - 1);
+    initializeTriangle(topRight, g, 0, 0, 0, g->cols - 1, g->rows - 1, g->cols - 1);
 
     bottomLeft->t1 = NULL;
-    bottomLeft->t2 = NULL:
-    bottomLeft->t3 = topRight:
+    bottomLeft->t2 = NULL;
+    bottomLeft->t3 = topRight;
 
     topRight->t1 = NULL;
-    topRight->t2 = NULL:
-    topRight->t3 = bottomLeft:
+    topRight->t2 = NULL;
+    topRight->t3 = bottomLeft;
 
-    tin->triangle = upperLeft;
+    tin->triangle = bottomLeft;
 
     // Priority queue for storing points and errors
     PriorityQueue* q = makeQueue();
@@ -88,30 +87,30 @@ TIN* simplify(TIN* tin, Grid* g, double epsilon)
     // Compute errors of all remaining grid points
     // For each triangle, add point with max error into priority queue
     int maxErrorBottomLeft = 0;
-    Vertex v* vertexBottomLeft;
+    Vertex* vertexBottomLeft;
     LList* vListBottomLeft = LList_init();
 
     int maxErrorTopRight = 0;
-    Vertex v* vertexTopRight;
+    Vertex* vertexTopRight;
     LList* vListTopRight = LList_init();
 
-    for (row = 0; row < g->rows; row++) {
-        for (col = 0; col < g->cols; col++) {
+    for (int row = 0; row < g->rows; row++) {
+        for (int col = 0; col < g->cols; col++) {
             if ((row == 0 && col == 0) ||
-                (row == 0 && col == cols-1) ||
-                (row == rows-1 && col == 0) ||
-                (row == rows-1 && col == cols-1)) {
+                (row == 0 && col == g->cols-1) ||
+                (row == g->rows-1 && col == 0) ||
+                (row == g->rows-1 && col == g->cols-1)) {
 
                 Vertex* v = (Vertex *) malloc(sizeof(Vertex));
                 v->row = row;
                 v->col = col;
-                v->value = g->values[row][col];
+                v->value = get(g, row, col);
 
                 if (row > col) {
                     v->triangle = bottomLeft;
                     LList_insert_at_head(vListBottomLeft, (void *)v);
 
-                    int error = computeError(bottomLeft, v);
+                    int error = computeError(g, bottomLeft, v);
                     if (error >= maxErrorBottomLeft) {
                         maxErrorBottomLeft = error;
                         vertexBottomLeft = v;
@@ -120,7 +119,7 @@ TIN* simplify(TIN* tin, Grid* g, double epsilon)
                     v->triangle = topRight;
                     LList_insert_at_head(vListTopRight, (void *)v);
 
-                    int error = computeError(topRight, v);
+                    int error = computeError(g, topRight, v);
                     if (error >= maxErrorTopRight) {
                         maxErrorTopRight = error;
                         vertexTopRight = v;
@@ -141,13 +140,11 @@ TIN* simplify(TIN* tin, Grid* g, double epsilon)
     while (maxErrorNode->priority > epsilon) {
 
         // Find point with largest error
-        Vertex* maxErrorVertex = (Vertex *)maxErrorNode->item;
+        Vertex* maxErrorVertex = (Vertex *) maxErrorNode->item;
 
         // Add largest error point to TIN
         Triangle* containsLargestErrorVertex = maxErrorVertex->triangle;
 
-        // TODO when will seg faults happen?
-        // TODO double check this
         Triangle* newT1 = (Triangle *) malloc(sizeof(Triangle));
         Triangle* newT2 = (Triangle *) malloc(sizeof(Triangle));
         Triangle* newT3 = (Triangle *) malloc(sizeof(Triangle));
@@ -158,7 +155,7 @@ TIN* simplify(TIN* tin, Grid* g, double epsilon)
         newT1->v3 = maxErrorVertex;
 
         if (containsLargestErrorVertex->t1 != NULL)
-            containsLargestErrorVertex->t1->t1 = newT1; // TODO check assumption that t->t1->t1 == t
+            containsLargestErrorVertex->t1->t1 = newT1;
         newT1->t1 = containsLargestErrorVertex->t1;
         newT1->t2 = newT2;
         newT1->t3 = newT3;
@@ -192,25 +189,25 @@ TIN* simplify(TIN* tin, Grid* g, double epsilon)
         LNode* node = vertices->head; 
 
         int maxErrorT1 = 0;
-        Vertex v* vertexT1;
+        Vertex* vertexT1;
         LList* vListT1 = LList_init();
 
         int maxErrorT2 = 0;
-        Vertex v* vertexT2;
+        Vertex* vertexT2;
         LList* vListT2 = LList_init();
 
         int maxErrorT3 = 0;
-        Vertex v* vertexT3;
+        Vertex* vertexT3;
         LList* vListT3 = LList_init();
 
         while (node != NULL) {
-            Vertex* v = (Vertex *) node->value;
+            Vertex* v = (Vertex *) node->item;
 
             if (triangleContains(newT1, v)) {
                 v->triangle = newT1;
                 LList_insert_at_head(vListT1, (void *)v);
 
-                int error = computeError(newT1, v);
+                int error = computeError(g, newT1, v);
                 if (error >= maxErrorT1) {
                     maxErrorT1 = error;
                     vertexT1 = v;
@@ -219,7 +216,7 @@ TIN* simplify(TIN* tin, Grid* g, double epsilon)
                 v->triangle = newT2;
                 LList_insert_at_head(vListT2, (void *)v);
 
-                int error = computeError(newT2, v);
+                int error = computeError(g, newT2, v);
                 if (error >= maxErrorT2) {
                     maxErrorT2 = error;
                     vertexT2 = v;
@@ -228,7 +225,7 @@ TIN* simplify(TIN* tin, Grid* g, double epsilon)
                 v->triangle = newT3;
                 LList_insert_at_head(vListT3, (void *)v);
 
-                int error = computeError(newT3, v);
+                int error = computeError(g, newT3, v);
                 if (error >= maxErrorT3) {
                     maxErrorT3 = error;
                     vertexT3 = v;
@@ -252,7 +249,7 @@ TIN* simplify(TIN* tin, Grid* g, double epsilon)
         free(containsLargestErrorVertex);
 
         // Set maxError to the error of the vertex with highest error in q
-        maxErrorNode = removeTop(p);
+        maxErrorNode = removeTop(q);
     }
     
     return tin;
@@ -262,33 +259,4 @@ TIN* simplify(TIN* tin, Grid* g, double epsilon)
 // TODO
 int main(int argc, char** args) 
 {
-    float epsilon = 0.0; //take from command line - TBU
-    
-    TIN tin;
-    Grid imageGrid;
-    
-    //allocate blocks of memory for image data
-    imageGrid.data = (int**) malloc(imageGrid.rows * sizeof(int*));
-    if (imageGrid.data == NULL) {
-        printf("Could not allocate array.");
-        exit(1);
-    }
-    for (int i = 0; i < imageGrid.rows; i++) {
-        imageGrid.data[i] = (int*) malloc(imageGrid.cols * sizeof(int));
-        if (imageGrid.data[i] == NULL) {
-            printf("Could not allocate array.");
-            exit(1);
-        }
-    }
-    
-    //call simplification method
-    TIN imageTIN = simplify(&tin, &imageGrid, epsilon);
-    
-    //free memory blocks allocated for image grid
-    for (int i = 0; i < imageGrid.rows; i++)
-        free(imageGrid.data[i]);
-    free(imageGrid.data);
-    
-    //done
-    return 0;
 }

@@ -2,7 +2,6 @@
 #include <stdlib.h>
 #include <string.h>
 #include <math.h>
-#include "viewshed.h"
 
 int allocateGrid(Grid* grid, int nrows, int ncols)
 {
