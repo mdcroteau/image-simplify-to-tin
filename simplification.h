@@ -4,16 +4,6 @@
 
 #include "llist.h"
 
-typedef struct _grid {
-    int rows, cols;
-    int xllcorner, yllcorner, cellsize, NODATA_value;
-    int** data;
-} Grid;
-
-// typedef struct _color {
-//     int r, g, b;
-// } Color;
-
 struct _triangle;
 
 typedef struct _vertex {
@@ -32,9 +22,3 @@ typedef struct _triangle {
 typedef struct _tin {
     Triangle* triangle;              // Any triangle in the TIN
 } TIN;
-
-// Sets grid element at (row, col) to value
-void set(Grid* g, int row, int col, int value) { g->data[row][col] = value; }
-
-// Gets rid element at (row, col)
-int get(Grid* g, int row, int col) { return g->data[row][col]; }

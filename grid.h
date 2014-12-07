@@ -1,6 +1,7 @@
 // Grid type designed to store in memory what the fields in a .asc file
 typedef struct _grid {
-    int ncols, nrows, xllcorner, yllcorner, cellsize, NODATA_value;
+    int rows, cols;
+    int xllcorner, yllcorner, cellsize, NODATA_value;
     int** values;
 } Grid;
 
@@ -49,3 +50,17 @@ int inBoundsOnGrid(Grid* grid, int i, int j);
 // @param j, is grid->values[i][j] equal to grid->NODATA_value
 // @returns a boolean indicating whether there is actual data at point (i,j)
 int noDataAtPoint(Grid* grid, int i, int j);
+
+// Sets grid element at (row, col) to value
+// @param grid, a pointer to the grid
+// @param row, the row index
+// @param col, the col index
+// @param value, the value to set (row, col) to
+void set(Grid* g, int row, int col, int value);
+
+// Gets rid element at (row, col)
+// @param grid, a pointer to the grid
+// @param row, the row index
+// @param col, the col index
+// @returns the value at (row, col)
+int get(Grid* g, int row, int col);

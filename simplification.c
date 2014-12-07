@@ -4,6 +4,7 @@
 
 #include "simplification.h"
 #include "pqueue.h"
+#include "grid.h"
 
 #include <stdlib.h>
 #include <math.h>
