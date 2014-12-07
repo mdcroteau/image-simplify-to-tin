@@ -6,6 +6,7 @@
 #include "pqueue.h"
 #include "grid.h"
 
+#include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
 
@@ -272,7 +273,15 @@ TIN* simplify(TIN* tin, Grid* g, double epsilon)
 }
 
 // The main method
-// TODO
-int main(int argc, char** args) 
+int main(int argc, char** argv)
 {
+    Grid* g = (Grid *) malloc(sizeof(Grid));
+    readFileIntoGrid(g, argv[1]);
+
+    printGrid(g);
+
+    TIN* tin = (TIN *) malloc(sizeof(TIN));
+    tin = simplify(tin, g, atof(argv[2]));
+
+    return 0;
 }

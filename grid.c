@@ -37,8 +37,8 @@ int readFileIntoGrid(Grid* grid, char* filename)
     if ((f = fopen(filename, "r")) == NULL)
         return 0;
 
-    fscanf(f, "cols %d\n", &grid->cols);
-    fscanf(f, "rows %d\n", &grid->rows);
+    fscanf(f, "ncols %d\n", &grid->cols);
+    fscanf(f, "nrows %d\n", &grid->rows);
 
     if (!allocateGrid(grid, grid->rows, grid->cols))
         return 0;
@@ -65,8 +65,8 @@ int saveGridToFile(Grid* grid, char* filename)
     if ((f = fopen(filename, "w")) == NULL)
         return 0;
 
-    fprintf(f, "cols %d\n", grid->cols);
-    fprintf(f, "rows %d\n", grid->rows);
+    fprintf(f, "ncols %d\n", grid->cols);
+    fprintf(f, "nrows %d\n", grid->rows);
     fprintf(f, "xllcorner %d\n", grid->xllcorner);
     fprintf(f, "yllcorner %d\n", grid->yllcorner);
     fprintf(f, "cellsize %d\n", grid->cellsize);
