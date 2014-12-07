@@ -6,16 +6,16 @@ LIBS = -lm
 DEFAULT: simplify
 
 simplify: simplification.o pqueue.o llist.o
-	$(CC) -o $@ simplification.o pqueue.o llist.o $(LIBS)
+	$(CC) $? -lm -o simplify
 
 pqueue.o: pqueue.c
-	$(CC) $(CFLAGS) -c pqueue.c -o pqueue.o 
+	$(CC) $(CFLAGS) -c $< -o $@
 
 llist.o: llist.c
-	$(CC) $(CFLAGS) -c llist.c -o llist.o 
+	$(CC) $(CFLAGS) -c $< -o $@
 
-simplification.o: simplification.c pqueue.h llist.h
-	$(CC) $(CLFAGS) -c simplification.c -o simplification.o
+simplification.o: simplification.c
+	$(CC) $(CFLAGS) -c $< -o $@
 
 clean:
-	rm -f *.o pqueue llist simplification
+	$(RM) *.o *~ simplify

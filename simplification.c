@@ -57,9 +57,24 @@ double computeError(Grid* g, Triangle* t, Vertex* v)
     return abs(fromTin - (double)get(g, v->row, v->col));
 }
 
-// TODO take from Daniel's version
+float triangleArea(Vertex* v1, Vertex* v2, Vertex* v3)
+{
+    return abs(v1->col * (v2->row - v3->row) + v2->col * (v3->row - v1->row) +
+               v3->col * (v1->row - v2->row)) / 2.0;
+}
+
+// TODO float equals
+// TODO on the line bug
 int triangleContains(Triangle* t, Vertex* v)
 {
+    float triArea = triangleArea(t->v1, t->v2, t->v3);
+    float areaWithPoint = (triangleArea(t->v1, t->v2, v) +
+                           triangleArea(t->v2, t->v3, v) +
+                           triangleArea(t->v3, t->v1, v));
+    if (triArea == areaWithPoint) {
+        return 1;
+    }
+    return 0;
 }
 
 TIN* simplify(TIN* tin, Grid* g, double epsilon) 
@@ -86,12 +101,12 @@ TIN* simplify(TIN* tin, Grid* g, double epsilon)
     
     // Compute errors of all remaining grid points
     // For each triangle, add point with max error into priority queue
-    int maxErrorBottomLeft = 0;
-    Vertex* vertexBottomLeft;
+    int maxErrorBottomLeft = -1;
+    Vertex* vertexBottomLeft = 0;
     LList* vListBottomLeft = LList_init();
 
-    int maxErrorTopRight = 0;
-    Vertex* vertexTopRight;
+    int maxErrorTopRight = -1;
+    Vertex* vertexTopRight = 0;
     LList* vListTopRight = LList_init();
 
     for (int row = 0; row < g->rows; row++) {
@@ -188,16 +203,16 @@ TIN* simplify(TIN* tin, Grid* g, double epsilon)
         LList* vertices = containsLargestErrorVertex->vList;
         LNode* node = vertices->head; 
 
-        int maxErrorT1 = 0;
-        Vertex* vertexT1;
+        int maxErrorT1 = -1;
+        Vertex* vertexT1 = 0;
         LList* vListT1 = LList_init();
 
-        int maxErrorT2 = 0;
-        Vertex* vertexT2;
+        int maxErrorT2 = -1;
+        Vertex* vertexT2 = 0;
         LList* vListT2 = LList_init();
 
-        int maxErrorT3 = 0;
-        Vertex* vertexT3;
+        int maxErrorT3 = -1;
+        Vertex* vertexT3 = 0;
         LList* vListT3 = LList_init();
 
         while (node != NULL) {

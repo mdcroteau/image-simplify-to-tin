@@ -1,7 +1,7 @@
 #pragma once
 
 typedef struct node_ {
-    int priority;
+    double priority;
     void* item;
 } Node;
 
@@ -14,11 +14,11 @@ typedef struct pQueue_ {
 
 PriorityQueue* makeQueue();
 
-Node* makeNode(int priority, void* item);
+Node* makeNode(double priority, void* item);
 
-void addItem(PriorityQueue* p, int priority, void* item);
+void addItem(PriorityQueue* p, double priority, void* item);
 
-void changePriority(PriorityQueue* p, int index, int newPriority);
+void changePriority(PriorityQueue* p, int index, double newPriority);
 
 void deleteNode(Node* node);
 
@@ -26,4 +26,4 @@ void deleteQueue(PriorityQueue* p);
 
 void insert(PriorityQueue* p, Node* node);
 
-Node* removeTop(PriorityQueue* p);
+void* removeTop(PriorityQueue* p);

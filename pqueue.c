@@ -20,7 +20,7 @@ PriorityQueue* makeQueue(){
   return out;
 }
 
-Node* makeNode(int priority, void* item)
+Node* makeNode(double priority, void* item)
 {
   Node* out = malloc(sizeof(Node));
 
@@ -41,7 +41,7 @@ void deleteQueue(PriorityQueue* p)
   free(p);
 }
 
-void addItem(PriorityQueue* p, int priority, void* item)
+void addItem(PriorityQueue* p, double priority, void* item)
 {
   insert(p, makeNode(priority, item));
 }
@@ -58,7 +58,7 @@ void insert(PriorityQueue* p, Node* node)
   siftUp(p, p->size-1);
 }
 
-void changePriority(PriorityQueue* p, int index, int newPriority)
+void changePriority(PriorityQueue* p, int index, double newPriority)
 {
   int diff = newPriority - p->array[index]->priority;
   p->array[index]->priority = newPriority;
@@ -77,14 +77,16 @@ void resizeQueue(PriorityQueue* p)
   p->arraySize = 2*p->size + 1;
 }
 
-Node* removeTop(PriorityQueue* p)
+void* removeTop(PriorityQueue* p)
 {
   if(p->size == 0) return NULL;
   Node* top = p->array[0];
   fillGap(p, 0);
   p->size--;
 
-  return top;
+  void* item = top->item;
+  free(top);
+  return item;
 }
 
 // Internal function, takes queue and index of a NULL Node and filters
@@ -202,7 +204,62 @@ void printQueuePriorities(PriorityQueue* p)
   for(int i=0; i<p->size; i++){
     Node* n = p->array[i];
 
-    printf("     Priority: %d\n", n->priority);
+    printf("     Priority: %f\n", n->priority);
   }
   printf("______-----------______\n");
 }
+
+// Check to make sure the PriorityQueue maintians Heap qualities
+/* void assertHeap(PriorityQueue* p) */
+/* { */
+/*   for(int i=0; i<p->size; i++){ */
+/*     int priority = p->array[i]->priority; */
+/*     if(2*i+1 < p->size){ */
+/*       assert(p->array[2*i+1]->priority <= priority); */
+/*       break; */
+/*     } */
+/*     if(2*i+2 < p->size){ */
+/*       assert(p->array[2*i+2]->priority <= priority); */
+/*       break; */
+/*     } */
+/*   } */
+/*  */
+/*   for(int i=p->size; i<p->arraySize; i++){ */
+/*     assert(!p->array[i]); */
+/*   } */
+/* } */
+
+// Tester
+/* int main(int argc, char** argv) */
+/* { */
+/*   PriorityQueue* p = makeQueue(); */
+
+/*   Node* n; */
+
+/*   printf("Building the queue\n"); */
+/*   for(int i=0; i<10; i++){ */
+/*     //n = makeNode(rand()%10000, (void*)0); */
+/*     addItem(p, 10-i, n); */
+/*     //insert(p, n); */
+/*     assertHeap(p); */
+/*   } */
+/*   changePriority(p, 3, 3); */
+/*   assertHeap(p); */
+/*   changePriority(p, 3, 20); */
+/*   assertHeap(p); */
+/*   changePriority(p, 5, 17); */
+/*   assertHeap(p); */
+/*   changePriority(p, 1, 2); */
+/*   assertHeap(p); */
+/*   changePriority(p, 9, 2); */
+/*   assertHeap(p); */
+/*   changePriority(p, 8, 100); */
+/*   assertHeap(p); */
+/*   printQueuePriorities(p); */
+
+/*   while(removeTop(p) != NULL); */
+
+/*   printf("Deleting the queue\n"); */
+/*   deleteQueue(p); */
+/*   return 0; */
+/* } */
