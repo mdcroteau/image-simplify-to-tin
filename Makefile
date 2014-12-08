@@ -1,23 +1,41 @@
+PLATFORM = $(shell uname)
+
+CFLAGS= -g -Wall -l m -std=c99
+LDFLAGS=
+
+ifeq ($(PLATFORM),Darwin)
+## Mac OS X
+CFLAGS += -m64 -isystem/usr/local/include
+LDFLAGS+= -m64 -lc -framework AGL -framework OpenGL -framework GLUT \
+	-framework Foundation
+else
+## Linux
+INCLUDEPATH  = -I/usr/include/GL/
+LIBPATH = -L/usr/lib #-L/usr/X11R6/lib
+LDFLAGS+=  -lGL -lglut #-lrt -lGLU -lX11 -lm  -lXmu -lXext -lXi
+endif
+
 CC = gcc
-CFLAGS = -g -Wall -std=c99
+GRAPHICS = $(LIBPATH) $(LDFLAGS)
 
-LIBS = -lm
+default: compile
 
-DEFAULT: simplify
+compile: pqueue.o grid.o simplification.o display.o list.o
+	$(CC) $? -lm $(GRAPHICS) -o simplify
 
-simplify: simplification.o pqueue.o llist.o grid.o
-	$(CC) simplification.o pqueue.o llist.o grid.o -lm -o simplify
-
-pqueue.o: pqueue.c
+simp.o: simplification.c
 	$(CC) $(CFLAGS) -c $< -o $@
 
-llist.o: llist.c
+pQueue.o: pqueue.c
 	$(CC) $(CFLAGS) -c $< -o $@
 
-grid.o: grid.c
+grid.o:	grid.c
 	$(CC) $(CFLAGS) -c $< -o $@
 
-simplification.o: simplification.c pqueue.o llist.o grid.o
+display.o: display.c
+	$(CC) $(CFLAGS) -c $< -o $@
+
+list.o: llist.c
 	$(CC) $(CFLAGS) -c $< -o $@
 
 clean:

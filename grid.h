@@ -1,3 +1,5 @@
+#pragma once
+
 // Grid type designed to store in memory what the fields in a .asc file
 typedef struct _grid {
     int rows, cols;

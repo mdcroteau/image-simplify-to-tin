@@ -7,7 +7,7 @@
   #include <GL/glut.h>
 #endif
 
-#include "Display.h"
+#include "display.h"
 
 LList* list;
 double imageAspectRatio;
@@ -51,6 +51,7 @@ void displayTriangles(Triangle* head, int maxX, int maxY)
   iWidth = maxX;
 
   turnIntoList(list, head);
+  printf("How many triangles? %d\n", list->size);
 
   int dummy_argc = 1;
   char** dummy_argv = malloc(2 * sizeof(char*));
@@ -101,13 +102,13 @@ void renderScene(void)
 {
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-  Node* node = LList_head(list);
+  LNode* node = LList_head(list);
   float max = 255.0;
 
   buildMapping(glutGet(GLUT_WINDOW_WIDTH), glutGet(GLUT_WINDOW_HEIGHT));
 
   // Paint white backdrop
-  glColor3f(1.0, 1.0, 1.0);
+  glColor3f(0.3, 1.0, 1.0);
   glBegin(GL_QUADS);
   glVertex3f(mapX(0), mapY(0), 0.0);
   glVertex3f(mapX(0), mapY(iHeight), 0.0);
@@ -164,103 +165,103 @@ Vertex* makeVertex(int col, int row, int value)
 
 
 // Cute test image
-int main(int argc, char** argv)
-{
-  Triangle* A;
-  Triangle* B;
-  Triangle* C;
-  Triangle* D;
-  Triangle* E;
-  Triangle* F;
-  Triangle* G;
-  Triangle* H;
-  Triangle* I;
-  A = calloc(1, sizeof(Triangle));
-  B = calloc(1, sizeof(Triangle));
-  C = calloc(1, sizeof(Triangle));
-  D = calloc(1, sizeof(Triangle));
-  E = calloc(1, sizeof(Triangle));
-  F = calloc(1, sizeof(Triangle));
-  G = calloc(1, sizeof(Triangle));
-  H = calloc(1, sizeof(Triangle));
-  I = calloc(1, sizeof(Triangle));
-
-  Vertex* one = makeVertex(50, 20, 150);
-  Vertex* two = makeVertex(80, 20, 200);
-  Vertex* three = makeVertex(120, 20, 50);
-  Vertex* four = makeVertex(120, 60, 150);
-  Vertex* five = makeVertex(100, 40, 249);
-  Vertex* six = makeVertex(90, 100, 90);
-  Vertex* seven = makeVertex(65, 60, 0);
-  Vertex* eight = makeVertex(50, 80, 15);
-  Vertex* nine = makeVertex(35, 60, 80);
-
-  A->t1 = B;
-  A->v1 = one;
-  A->v2 = eight;
-  A->v3 = nine;
-  A->visited = 0;
-
-  B->t1 = A;
-  B->t2 = C;
-  B->t3 = I;
-  B->v1 = one;
-  B->v2 = seven;
-  B->v3 = eight;
-  B->visited = 0;
-
-  C->t1 = B;
-  C->t2 = D;
-  C->v1 = one;
-  C->v2 = two;
-  C->v3 = seven;
-  C->visited = 0;
-
-  D->t1 = C;
-  D->t2 = E;
-  D->t3 = G;
-  D->v1 = two;
-  D->v2 = five;
-  D->v3 = seven;
-  D->visited = 0;
-
-  E->t1 = D;
-  E->t2 = F;
-  E->v1 = two;
-  E->v2 = three;
-  E->v3 = five;
-  E->visited = 0;
-
-  F->t1 = E;
-  F->t2 = G;
-  F->v1 = three;
-  F->v2 = four;
-  F->v3 = five;
-  F->visited = 0;
-
-  G->t1 = D;
-  G->t2 = F;
-  G->t3 = H;
-  G->v1 = five;
-  G->v2 = four;
-  G->v3 = seven;
-  G->visited = 0;
-
-  H->t1 = G;
-  H->t2 = I;
-  H->v1 = seven;
-  H->v2 = four;
-  H->v3 = six;
-  H->visited = 0;
-
-  I->t1 = B;
-  I->t2 = H;
-  I->v1 = seven;
-  I->v2 = six;
-  I->v3 = eight;
-  I->visited = 0; // Phew!
-
-  displayTriangles(A, 140, 120);
+/* int main(int argc, char** argv) */
+/* { */
+/*   Triangle* A; */
+/*   Triangle* B; */
+/*   Triangle* C; */
+/*   Triangle* D; */
+/*   Triangle* E; */
+/*   Triangle* F; */
+/*   Triangle* G; */
+/*   Triangle* H; */
+/*   Triangle* I; */
+/*   A = calloc(1, sizeof(Triangle)); */
+/*   B = calloc(1, sizeof(Triangle)); */
+/*   C = calloc(1, sizeof(Triangle)); */
+/*   D = calloc(1, sizeof(Triangle)); */
+/*   E = calloc(1, sizeof(Triangle)); */
+/*   F = calloc(1, sizeof(Triangle)); */
+/*   G = calloc(1, sizeof(Triangle)); */
+/*   H = calloc(1, sizeof(Triangle)); */
+/*   I = calloc(1, sizeof(Triangle)); */
+/*  */
+/*   Vertex* one = makeVertex(50, 20, 150); */
+/*   Vertex* two = makeVertex(80, 20, 200); */
+/*   Vertex* three = makeVertex(120, 20, 50); */
+/*   Vertex* four = makeVertex(120, 60, 150); */
+/*   Vertex* five = makeVertex(100, 40, 249); */
+/*   Vertex* six = makeVertex(90, 100, 90); */
+/*   Vertex* seven = makeVertex(65, 60, 0); */
+/*   Vertex* eight = makeVertex(50, 80, 15); */
+/*   Vertex* nine = makeVertex(35, 60, 80); */
+/*  */
+/*   A->t1 = B; */
+/*   A->v1 = one; */
+/*   A->v2 = eight; */
+/*   A->v3 = nine; */
+/*   A->visited = 0; */
+/*  */
+/*   B->t1 = A; */
+/*   B->t2 = C; */
+/*   B->t3 = I; */
+/*   B->v1 = one; */
+/*   B->v2 = seven; */
+/*   B->v3 = eight; */
+/*   B->visited = 0; */
+/*  */
+/*   C->t1 = B; */
+/*   C->t2 = D; */
+/*   C->v1 = one; */
+/*   C->v2 = two; */
+/*   C->v3 = seven; */
+/*   C->visited = 0; */
+/*  */
+/*   D->t1 = C; */
+/*   D->t2 = E; */
+/*   D->t3 = G; */
+/*   D->v1 = two; */
+/*   D->v2 = five; */
+/*   D->v3 = seven; */
+/*   D->visited = 0; */
+/*  */
+/*   E->t1 = D; */
+/*   E->t2 = F; */
+/*   E->v1 = two; */
+/*   E->v2 = three; */
+/*   E->v3 = five; */
+/*   E->visited = 0; */
+/*  */
+/*   F->t1 = E; */
+/*   F->t2 = G; */
+/*   F->v1 = three; */
+/*   F->v2 = four; */
+/*   F->v3 = five; */
+/*   F->visited = 0; */
+/*  */
+/*   G->t1 = D; */
+/*   G->t2 = F; */
+/*   G->t3 = H; */
+/*   G->v1 = five; */
+/*   G->v2 = four; */
+/*   G->v3 = seven; */
+/*   G->visited = 0; */
+/*  */
+/*   H->t1 = G; */
+/*   H->t2 = I; */
+/*   H->v1 = seven; */
+/*   H->v2 = four; */
+/*   H->v3 = six; */
+/*   H->visited = 0; */
+/*  */
+/*   I->t1 = B; */
+/*   I->t2 = H; */
+/*   I->v1 = seven; */
+/*   I->v2 = six; */
+/*   I->v3 = eight; */
+/*   I->visited = 0; // Phew! */
+/*  */
+/*   displayTriangles(A, 140, 120); */
 
   /* Color* c1 = buildColor(1.0, 1.0, 1.0); */
   /* Color* c2 = buildColor(0, 0, 1.0); */
@@ -321,5 +322,5 @@ int main(int argc, char** argv)
   /* temp->threeC = c6; */
 
   /* displayTriangles(tri, 300, 300); */
-  return 0;
-}
+/*   return 0; */
+/* } */

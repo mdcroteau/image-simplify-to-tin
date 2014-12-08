@@ -2,6 +2,8 @@
 //Authors: Croteau, Imhoff, Zeller
 //Date: 11/09/14
 
+#pragma once
+
 #include "llist.h"
 
 struct _triangle;

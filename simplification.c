@@ -5,6 +5,7 @@
 #include "simplification.h"
 #include "pqueue.h"
 #include "grid.h"
+#include "display.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -282,6 +283,8 @@ int main(int argc, char** argv)
 
     TIN* tin = (TIN *) malloc(sizeof(TIN));
     tin = simplify(tin, g, atof(argv[2]));
+
+    displayTriangles(tin->triangle, g->cols, g->rows);
 
     return 0;
 }
