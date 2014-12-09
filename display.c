@@ -146,7 +146,22 @@ void renderScene(void)
     //glVertex3f(mapX(p->x), mapY(p->y), 0.0);
     glColor3f(v->value/max, v->value/max, v->value/max);
     glVertex3f(mapX(v->col), mapY(v->row), 0.0);
+    glEnd();
+    
+    glColor3f(1.0, 0, 0);
+    glBegin(GL_LINES);
+    glVertex3f(mapX(t->v1->col), mapY(t->v1->row), 0);
+    glVertex3f(mapX(t->v2->col), mapY(t->v2->row), 0);
+    glEnd();
 
+    glBegin(GL_LINES);
+    glVertex3f(mapX(t->v1->col), mapY(t->v1->row), 0);
+    glVertex3f(mapX(t->v3->col), mapY(t->v3->row), 0);
+    glEnd();
+
+    glBegin(GL_LINES);
+    glVertex3f(mapX(t->v2->col), mapY(t->v2->row), 0);
+    glVertex3f(mapX(t->v3->col), mapY(t->v3->row), 0);
     glEnd();
 
     node = node->next;
