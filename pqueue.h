@@ -26,4 +26,6 @@ void deleteQueue(PriorityQueue* p);
 
 void insert(PriorityQueue* p, Node* node);
 
-void* removeTop(PriorityQueue* p);
+Node* removeTop(PriorityQueue* p);
+
+void assertHeap(PriorityQueue* p);

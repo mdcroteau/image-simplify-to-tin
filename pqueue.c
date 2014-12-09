@@ -77,16 +77,14 @@ void resizeQueue(PriorityQueue* p)
   p->arraySize = 2*p->size + 1;
 }
 
-void* removeTop(PriorityQueue* p)
+Node* removeTop(PriorityQueue* p)
 {
   if(p->size == 0) return NULL;
   Node* top = p->array[0];
   fillGap(p, 0);
   p->size--;
-
-  void* item = top->item;
-  free(top);
-  return item;
+  
+  return top;
 }
 
 // Internal function, takes queue and index of a NULL Node and filters
@@ -210,24 +208,24 @@ void printQueuePriorities(PriorityQueue* p)
 }
 
 // Check to make sure the PriorityQueue maintians Heap qualities
-/* void assertHeap(PriorityQueue* p) */
-/* { */
-/*   for(int i=0; i<p->size; i++){ */
-/*     int priority = p->array[i]->priority; */
-/*     if(2*i+1 < p->size){ */
-/*       assert(p->array[2*i+1]->priority <= priority); */
-/*       break; */
-/*     } */
-/*     if(2*i+2 < p->size){ */
-/*       assert(p->array[2*i+2]->priority <= priority); */
-/*       break; */
-/*     } */
-/*   } */
-/*  */
-/*   for(int i=p->size; i<p->arraySize; i++){ */
-/*     assert(!p->array[i]); */
-/*   } */
-/* } */
+void assertHeap(PriorityQueue* p)
+{
+  for(int i=0; i<p->size; i++){
+    int priority = p->array[i]->priority;
+    if(2*i+1 < p->size){
+      assert(p->array[2*i+1]->priority <= priority);
+      break;
+    }
+    if(2*i+2 < p->size){
+      assert(p->array[2*i+2]->priority <= priority);
+      break;
+    }
+  }
+
+  for(int i=p->size; i<p->arraySize; i++){
+    assert(!p->array[i]);
+  }
+}
 
 // Tester
 /* int main(int argc, char** argv) */

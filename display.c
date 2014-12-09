@@ -1,5 +1,6 @@
 #include <stdlib.h>
 #include <stdio.h>
+#include <assert.h>
 
 #ifdef __APPLE__
   #include <GLUT/glut.h>
@@ -47,11 +48,12 @@ void displayTriangles(Triangle* head, int maxX, int maxY)
   list = LList_init();
 
   imageAspectRatio = ((double)maxX)/maxY;
-  iHeight = maxY;
-  iWidth = maxX;
+  iHeight = maxY - 1;
+  iWidth = maxX - 1;
 
   turnIntoList(list, head);
   printf("How many triangles? %d\n", list->size);
+  assert(list->head);
 
   int dummy_argc = 1;
   char** dummy_argv = malloc(2 * sizeof(char*));
@@ -67,7 +69,6 @@ void displayTriangles(Triangle* head, int maxX, int maxY)
   glutDisplayFunc(renderScene);
 
   glutMainLoop();
-
 }
 
 void buildMapping(int windowX, int windowY)
@@ -120,8 +121,16 @@ void renderScene(void)
   while(node != NULL){
     //Color* c = node->oneC;
     //Point* p = node->oneP;
+    printf("How many times?\n");
     Triangle* t = node->item;
+    assert(t);
     Vertex* v = t->v1;
+    // TODO remove after debugging
+    if (v == 0) { 
+        node = node->next;
+        continue;
+    }
+    assert(v);
     glBegin(GL_TRIANGLES);
 
     //glColor3f(c->r, c->g, c->b);
