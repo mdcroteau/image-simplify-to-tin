@@ -125,21 +125,21 @@ void renderScene(void)
 
     glBegin(GL_TRIANGLES);
 
-    glColor3f(c.r/max, c.g/max, c.b/max);
+    glColor3f(c.red/max, c.green/max, c.blue/max);
     //glColor3f(v->value/max, v->value/max, v->value/max);
     glVertex3f(mapX(v->col), mapY(v->row), 0.0);
 
     v = t->v2;
     c = v->color;
 
-    glColor3f(c.r/max, c.g/max, c.b/max);
+    glColor3f(c.red/max, c.green/max, c.blue/max);
     //glColor3f(v->value/max, v->value/max, v->value/max);
     glVertex3f(mapX(v->col), mapY(v->row), 0.0);
 
     v = t->v3;
     c = v->color;
 
-    glColor3f(c.r/max, c.g/max, c.b/max);
+    glColor3f(c.red/max, c.green/max, c.blue/max);
     //glColor3f(v->value/max, v->value/max, v->value/max);
     glVertex3f(mapX(v->col), mapY(v->row), 0.0);
     glEnd();
