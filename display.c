@@ -39,8 +39,6 @@ void turnIntoList(LList* list, Triangle* node)
   turnIntoList(list, node->t1);
   turnIntoList(list, node->t2);
   turnIntoList(list, node->t3);
-
-
 }
 
 void displayTriangles(Triangle* head, int maxX, int maxY)
@@ -151,21 +149,22 @@ void renderScene(void)
     glVertex3f(mapX(v->col), mapY(v->row), 0.0);
     glEnd();
     
-    glColor3f(1.0, 0, 0);
-    glBegin(GL_LINES);
-    glVertex3f(mapX(t->v1->col), mapY(t->v1->row), 0);
-    glVertex3f(mapX(t->v2->col), mapY(t->v2->row), 0);
-    glEnd();
+    // Draw lines for debugging
+    /* glColor3f(1.0, 0, 0); */
+    /* glBegin(GL_LINES); */
+    /* glVertex3f(mapX(t->v1->col), mapY(t->v1->row), 0); */
+    /* glVertex3f(mapX(t->v2->col), mapY(t->v2->row), 0); */
+    /* glEnd(); */
 
-    glBegin(GL_LINES);
-    glVertex3f(mapX(t->v1->col), mapY(t->v1->row), 0);
-    glVertex3f(mapX(t->v3->col), mapY(t->v3->row), 0);
-    glEnd();
+    /* glBegin(GL_LINES); */
+    /* glVertex3f(mapX(t->v1->col), mapY(t->v1->row), 0); */
+    /* glVertex3f(mapX(t->v3->col), mapY(t->v3->row), 0); */
+    /* glEnd(); */
 
-    glBegin(GL_LINES);
-    glVertex3f(mapX(t->v2->col), mapY(t->v2->row), 0);
-    glVertex3f(mapX(t->v3->col), mapY(t->v3->row), 0);
-    glEnd();
+    /* glBegin(GL_LINES); */
+    /* glVertex3f(mapX(t->v2->col), mapY(t->v2->row), 0); */
+    /* glVertex3f(mapX(t->v3->col), mapY(t->v3->row), 0); */
+    /* glEnd(); */
 
     node = node->next;
   }

@@ -89,9 +89,11 @@ double computeError(Grid* g, Triangle* t, Vertex* v)
     double fromTin = linearlyInterpolate(v1, v2, v3, v->row, v->col);
     /* printf("col, %d, row, %d, value, %d\n", v->col, v->row, get(g, v->row, v->col)); */
     /* printf("fromTin: %f\n", fromTin); */
-    double toReturn = abs(fromTin - (double)get(g, v->row, v->col));
+    double error = abs(fromTin - (double)get(g, v->row, v->col));
     /* printf("toReturn: %f\n", toReturn); */
-    return toReturn;
+    /* if (0 > toReturn || 255 < toReturn) */
+    /*     printf("Bad error calculated: %f, %f\n", fromTin, toReturn); */
+    return error;
 }
 
 float triangleArea(Vertex* v1, Vertex* v2, Vertex* v3)
@@ -159,6 +161,11 @@ void splitTriangle(TIN* tin, Triangle* t, Vertex* v)
     Triangle* t2 = (Triangle *) malloc(sizeof(Triangle));
     Triangle* t3 = (Triangle *) malloc(sizeof(Triangle));
 
+    // Initialize visited flag to 0
+    t1->visited = 0;
+    t2->visited = 0;
+    t3->visited = 0;
+
     // Initialize t1
     t1->v1 = t->v1;
     t1->v2 = t->v2;
@@ -193,6 +200,7 @@ void splitTriangle(TIN* tin, Triangle* t, Vertex* v)
 }
 
 // TODO refactor and document
+// TODO assert mallocs
 TIN* simplify(TIN* tin, Grid* g, double epsilon) 
 {
     // Initialize TIN with 4 corner points
@@ -260,7 +268,6 @@ TIN* simplify(TIN* tin, Grid* g, double epsilon)
     
     // Main algorithm
     Node* maxErrorNode = removeTop(q);
-    int i = 0;
     while (maxErrorNode->priority > epsilon) {
         // Find point with largest error
         Vertex* maxErrorVertex = (Vertex *) maxErrorNode->item;
@@ -349,11 +356,6 @@ TIN* simplify(TIN* tin, Grid* g, double epsilon)
 
         // Set maxError to the error of the vertex with highest error in q
         maxErrorNode = removeTop(q);
-
-        // TODO for debug
-        if (i == 15)
-            displayTriangles(tin->triangle, g->cols, g->rows);
-        i++;
     }
     
     return tin;
