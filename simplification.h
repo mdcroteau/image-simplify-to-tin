@@ -5,11 +5,13 @@
 #pragma once
 
 #include "llist.h"
+#include "grid.h"
 
 struct _triangle;
 
 typedef struct _vertex {
-    int row, col, value;             // Value will eventually be of type Color
+    int row, col;
+    Color color;
     struct _triangle *triangle;      // Triangle containing vertex
 } Vertex;
 

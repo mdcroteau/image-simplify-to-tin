@@ -19,28 +19,28 @@ void initialTriangulation(TIN* tin, Grid* g)
     v1 = (Vertex *) malloc(sizeof(Vertex));
     v1->row = 0;
     v1->col = 0;
-    v1->value = get(g, v1->row, v1->col);
+    v1->color = get(g, v1->row, v1->col);
 
     // Top right vertex
     Vertex* v2 = (Vertex *) malloc(sizeof(Vertex));
     v2 = (Vertex *) malloc(sizeof(Vertex));
     v2->row = 0;
     v2->col = g->cols - 1;
-    v2->value = get(g, v2->row, v2->col);
+    v2->color = get(g, v2->row, v2->col);
 
     // Bottom left vertex
     Vertex* v3 = (Vertex *) malloc(sizeof(Vertex));
     v3 = (Vertex *) malloc(sizeof(Vertex));
     v3->row = g->rows - 1;
     v3->col = 0;
-    v3->value = get(g, v3->row, v3->col);
+    v3->color = get(g, v3->row, v3->col);
 
     // Bottom right vertex
     Vertex* v4 = (Vertex *) malloc(sizeof(Vertex));
     v4 = (Vertex *) malloc(sizeof(Vertex));
     v4->row = g->rows - 1;
     v4->col = g->cols - 1;
-    v4->value = get(g, v4->row, v4->col);
+    v4->color = get(g, v4->row, v4->col);
 
     // Bottom left triangle
     Triangle* bottomLeft = (Triangle *) malloc(sizeof(Triangle));
@@ -64,20 +64,40 @@ void initialTriangulation(TIN* tin, Grid* g)
 
 double linearlyInterpolate(Vertex* a, Vertex* b, Vertex* c, int row, int col) 
 {
-    double abx = b->col - a->col;
+    double abx= b->col - a->col;
     double aby = b->row - a->row;
-    double abz = b->value - a->value;
+    double abzR = b->red - a->color.red;
 
     double acx = c->col - a->col;
     double acy = c->row - a->row;
-    double acz = c->value - a->value;
+    double aczR = c->red - a->color.red;
 
-    double crossx = aby*acz - abz*acy;
-    double crossy = abz*acx - abx*acz;
+    double crossxR = aby*aczR - abzR*acy;
+    double crossyR = abzR*acx - abx*aczR;
     double crossz = abx*acy - aby*acx;
-    double d = -(crossx*a->col + crossy*a->row + crossz*a->value);
+    double dR = -(crossxR*a->col + crossyR*a->row + crossz*a->color.red);
+    double finalR = (-crossxR*col - crossyR*row - dR) / crossz
+    
 
-    return (-crossx*col - crossy*row - d) / crossz;
+    double abzG = b->green - a->color.green;
+    double aczG = c->green - a->color.green;
+    
+    double crossxG = aby*aczG - abzG*acy;
+    double crossyG = abzG*acx - abx*aczG;
+    double dG = -(crossxG*a->col + crossyG*a->row + crossz*a->color.green);
+    double finalG = (-crossxG*col - crossyG*row - dG) / crossz
+
+    
+    double abzB = b->blue - a->color.blue;
+    double aczB = c->blue - a->color.blue;
+    
+    double crossxB = aby*aczB - abzB*acy;
+    double crossyB = abzB*acx - abx*aczB;
+    double dB = -(crossxB*a->col + crossyB*a->row + crossz*a->color.blue);
+    double finalB = (-crossxB*col - crossyB*row - dB) / crossz
+    
+    
+    return (finalR / 3 + finalG / 3 + finalB / 3);
 }
 
 double computeError(Grid* g, Triangle* t, Vertex* v)
@@ -87,7 +107,7 @@ double computeError(Grid* g, Triangle* t, Vertex* v)
     Vertex* v3 = t->v3;
 
     double fromTin = linearlyInterpolate(v1, v2, v3, v->row, v->col);
-    double error = fabs(fromTin - (double)get(g, v->row, v->col));
+    double error = fabs(fromTin - (get(g, v->row, v->col).red / 3.0 + get(g, v->row, v->col).green / 3.0 + get(g, v->row, v->col).blue / 3.0));
 
     if (0 > error || 255 < error) {
         printf("Bad error calculated: %f, %f\n", fromTin, error);
@@ -233,7 +253,7 @@ TIN* simplify(TIN* tin, Grid* g, double epsilon)
                 Vertex* v = (Vertex *) malloc(sizeof(Vertex));
                 v->row = row;
                 v->col = col;
-                v->value = get(g, row, col);
+                v->color = get(g, row, col);
 
                 if (triangleContains(bottomLeft, v)) {
                     v->triangle = bottomLeft;

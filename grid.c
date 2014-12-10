@@ -9,10 +9,10 @@ int allocateGrid(Grid* grid, int rows, int cols)
 {
     int i;
 
-    if ((grid->values = malloc(rows*sizeof(int *))) == NULL)
+    if ((grid->color = malloc(rows*sizeof(Color *))) == NULL)
         return 0;
     for (i = 0; i < rows; i++) {
-        if ((grid->values[i] = malloc(cols*sizeof(int))) == NULL)
+        if ((grid->color[i] = malloc(cols*sizeof(Color))) == NULL)
             return 0;
     }
 
@@ -24,9 +24,9 @@ void freeGrid(Grid* grid)
     int i;
 
     for (i = 0; i < grid->rows; i++) {
-        free(grid->values[i]);
+        free(grid->color[i]);
     }
-    free(grid->values);
+    free(grid->color);
 }
 
 int readFileIntoGrid(Grid* grid, char* filename)
@@ -43,14 +43,11 @@ int readFileIntoGrid(Grid* grid, char* filename)
     if (!allocateGrid(grid, grid->rows, grid->cols))
         return 0;
 
-    fscanf(f, "xllcorner %d\n", &grid->xllcorner);
-    fscanf(f, "yllcorner %d\n", &grid->yllcorner);
-    fscanf(f, "cellsize %d\n", &grid->cellsize);
-    fscanf(f, "NODATA_value %d\n", &grid->NODATA_value);
-
-    for (i = 0; i < grid->rows; i++) {
-        for (j = 0; j < grid->cols; j++) {
-            fscanf(f, "%d", &(grid->values[i][j]));
+    for (i = 0; i < grid.nrows; i++) {
+        for (j = 0; j < grid.ncols; j++) {
+            grid->color[i][j].red = fgetc(f);
+            grid->color[i][j].green = fgetc(f);
+            grid->color[i][j].blue = fgetc(f);
         }
     }
 
@@ -67,14 +64,10 @@ int saveGridToFile(Grid* grid, char* filename)
 
     fprintf(f, "ncols %d\n", grid->cols);
     fprintf(f, "nrows %d\n", grid->rows);
-    fprintf(f, "xllcorner %d\n", grid->xllcorner);
-    fprintf(f, "yllcorner %d\n", grid->yllcorner);
-    fprintf(f, "cellsize %d\n", grid->cellsize);
-    fprintf(f, "NODATA_value %d\n", grid->NODATA_value);
 
     for (i = 0; i < grid->rows; i++) {
         for (j = 0; j < grid->cols; j++) {
-            fprintf(f, "%d ", grid->values[i][j]);
+            fprintf(f, "%d %d %d ", grid->color[i][j].red, grid->color[i][j].green, grid->color[i][j].blue);
         }
         fprintf(f, "\n");
     }
@@ -87,10 +80,6 @@ void copyGridHeader(Grid* to, Grid* from)
 {
     to->cols = from->cols;
     to->rows = from->rows;
-    to->xllcorner = from->xllcorner;
-    to->yllcorner = from->yllcorner;
-    to->cellsize = from->cellsize;
-    to->NODATA_value = from->NODATA_value;
 }
 
 void printGrid(Grid* grid)
@@ -100,7 +89,7 @@ void printGrid(Grid* grid)
     printf("Printing grid with %d cols and %d rows.\n", grid->cols, grid->rows);
     for (i = 0; i < grid->rows; i++) {
         for (j = 0; j < grid->cols; j++) {
-            printf("%d ", grid->values[i][j]);
+            printf("(%dR %dG %dB) ", grid->color[i][j].red, grid->color[i][j].green, grid->color[i][j].blue);
         }
         printf("\n");
     }
@@ -111,17 +100,15 @@ int inBoundsOnGrid(Grid* grid, int i, int j)
     return (i >= 0 && j >= 0 && i < grid->rows && j < grid->cols);
 }
 
-int noDataAtPoint(Grid* grid, int i, int j)
-{
-    return (grid->NODATA_value == grid->values[i][j]);
+
+void set(Grid* g, int row, int col, Color c)
+{ 
+    g->color[row][col].red = c.red;
+    g->color[row][col].green = c.green;
+    g->color[row][col].blue = c.blue;
 }
 
-void set(Grid* g, int row, int col, int value) 
+Color get(Grid* g, int row, int col)
 { 
-    g->values[row][col] = value; 
-}
-
-int get(Grid* g, int row, int col)
-{ 
-    return g->values[row][col]; 
+    return g->color[row][col];
 }

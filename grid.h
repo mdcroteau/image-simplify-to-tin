@@ -1,10 +1,14 @@
 #pragma once
 
+// Color type designed to store RGB values
+typedef struct _color {
+    int red, green, blue;
+} Color;
+
 // Grid type designed to store in memory what the fields in a .asc file
 typedef struct _grid {
     int rows, cols;
-    int xllcorner, yllcorner, cellsize, NODATA_value;
-    int** values;
+    Color** color;
 } Grid;
 
 // Allocates a two dimensional array of ints to be used by the Grid struct
@@ -30,7 +34,7 @@ int readFileIntoGrid(Grid* grid, char* filename);
 // @returns 0 if failure, 1 if successful
 int saveGridToFile(Grid* grid, char* filename);
 
-// Copies all fields except values of the from grid to the to grid
+// Copies all fields except colors of the from grid to the to grid
 // @param to, a pointer to the grid that we are copying the header to
 // @param from, a pointer to the grid that we are copying the header from
 void copyGridHeader(Grid* to, Grid* from);
@@ -41,28 +45,21 @@ void printGrid(Grid* grid);
 
 // Check whether (i,j) is a valid index into the grid
 // @param grid, a pointer to the grid to check bounds on
-// @param i, is grid->values[i][j] within the bounds of the two dim array?
-// @param j, is grid->values[i][j] within the bounds of the two dim array?
+// @param i, is grid->color[i][j] within the bounds of the two dim array?
+// @param j, is grid->color[i][j] within the bounds of the two dim array?
 // @returns a boolean indicating whether (i,j) is a valid index
 int inBoundsOnGrid(Grid* grid, int i, int j);
 
-// Check whether there is actual data at point (i,j) on grid
-// @param grid, a pointer to the grid to check
-// @param i, is grid->values[i][j] equal to grid->NODATA_value
-// @param j, is grid->values[i][j] equal to grid->NODATA_value
-// @returns a boolean indicating whether there is actual data at point (i,j)
-int noDataAtPoint(Grid* grid, int i, int j);
-
-// Sets grid element at (row, col) to value
+// Sets grid element at (row, col) to c
 // @param grid, a pointer to the grid
 // @param row, the row index
 // @param col, the col index
-// @param value, the value to set (row, col) to
-void set(Grid* g, int row, int col, int value);
+// @param c, the color to set (row, col) to
+void set(Grid* g, int row, int col, Color c);
 
 // Gets rid element at (row, col)
 // @param grid, a pointer to the grid
 // @param row, the row index
 // @param col, the col index
-// @returns the value at (row, col)
-int get(Grid* g, int row, int col);
+// @returns the color at (row, col)
+Color get(Grid* g, int row, int col);
