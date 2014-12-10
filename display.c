@@ -121,15 +121,9 @@ void renderScene(void)
   while(node != NULL){
     //Color* c = node->oneC;
     //Point* p = node->oneP;
-    printf("How many times?\n");
     Triangle* t = node->item;
     assert(t);
     Vertex* v = t->v1;
-    // TODO remove after debugging
-    /* if (v == 0) {  */
-    /*     node = node->next; */
-    /*     continue; */
-    /* } */
     assert(v);
     glBegin(GL_TRIANGLES);
 
