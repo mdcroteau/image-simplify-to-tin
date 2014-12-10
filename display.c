@@ -166,14 +166,14 @@ void renderScene(void)
   glutSwapBuffers();
 }
 
-Vertex* makeVertex(int col, int row, int value)
-{
-  Vertex* v = malloc(sizeof(Vertex));
-  v->row = row;
-  v->col = col;
-  v->value = value;
-  return v;
-}
+/* Vertex* makeVertex(int col, int row, int value) */
+/* { */
+/*   Vertex* v = malloc(sizeof(Vertex)); */
+/*   v->row = row; */
+/*   v->col = col; */
+/*   v->value = value; */
+/*   return v; */
+/* } */
 
 
 // Cute test image
