@@ -87,18 +87,19 @@ double computeError(Grid* g, Triangle* t, Vertex* v)
     Vertex* v3 = t->v3;
 
     double fromTin = linearlyInterpolate(v1, v2, v3, v->row, v->col);
-    /* printf("col, %d, row, %d, value, %d\n", v->col, v->row, get(g, v->row, v->col)); */
-    /* printf("fromTin: %f\n", fromTin); */
-    double error = abs(fromTin - (double)get(g, v->row, v->col));
-    /* printf("toReturn: %f\n", toReturn); */
-    /* if (0 > toReturn || 255 < toReturn) */
-    /*     printf("Bad error calculated: %f, %f\n", fromTin, toReturn); */
+    double error = fabs(fromTin - (double)get(g, v->row, v->col));
+
+    if (0 > error || 255 < error) {
+        printf("Bad error calculated: %f, %f\n", fromTin, error);
+        printf("...for pixel: col, row, value: %d, %d, %d\n", v->col, v->row, get(g, v->row, v->col));
+        assert(0);
+    }
     return error;
 }
 
 float triangleArea(Vertex* v1, Vertex* v2, Vertex* v3)
 {
-    return abs(v1->col * (v2->row - v3->row) + v2->col * (v3->row - v1->row) +
+    return fabs(v1->col * (v2->row - v3->row) + v2->col * (v3->row - v1->row) +
                v3->col * (v1->row - v2->row)) / 2.0;
 }
 
@@ -234,7 +235,7 @@ TIN* simplify(TIN* tin, Grid* g, double epsilon)
                 v->col = col;
                 v->value = get(g, row, col);
 
-                if (row > col) {
+                if (triangleContains(bottomLeft, v)) {
                     v->triangle = bottomLeft;
                     LList_insert_at_head(vListBottomLeft, (void *)v);
 
@@ -268,6 +269,7 @@ TIN* simplify(TIN* tin, Grid* g, double epsilon)
     
     // Main algorithm
     Node* maxErrorNode = removeTop(q);
+
     while (maxErrorNode->priority > epsilon) {
         // Find point with largest error
         Vertex* maxErrorVertex = (Vertex *) maxErrorNode->item;
