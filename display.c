@@ -125,21 +125,21 @@ void renderScene(void)
 
     glBegin(GL_TRIANGLES);
 
-    glColor3f(c.r/max, c.g/max, c.b/max);
+    glColor3f(c.red/max, c.green/max, c.blue/max);
     //glColor3f(v->value/max, v->value/max, v->value/max);
     glVertex3f(mapX(v->col), mapY(v->row), 0.0);
 
     v = t->v2;
     c = v->color;
 
-    glColor3f(c.r/max, c.g/max, c.b/max);
+    glColor3f(c.red/max, c.green/max, c.blue/max);
     //glColor3f(v->value/max, v->value/max, v->value/max);
     glVertex3f(mapX(v->col), mapY(v->row), 0.0);
 
     v = t->v3;
     c = v->color;
 
-    glColor3f(c.r/max, c.g/max, c.b/max);
+    glColor3f(c.red/max, c.green/max, c.blue/max);
     //glColor3f(v->value/max, v->value/max, v->value/max);
     glVertex3f(mapX(v->col), mapY(v->row), 0.0);
     glEnd();
@@ -166,14 +166,14 @@ void renderScene(void)
   glutSwapBuffers();
 }
 
-Vertex* makeVertex(int col, int row, int value)
-{
-  Vertex* v = malloc(sizeof(Vertex));
-  v->row = row;
-  v->col = col;
-  v->value = value;
-  return v;
-}
+/* Vertex* makeVertex(int col, int row, int value) */
+/* { */
+/*   Vertex* v = malloc(sizeof(Vertex)); */
+/*   v->row = row; */
+/*   v->col = col; */
+/*   v->value = value; */
+/*   return v; */
+/* } */
 
 
 // Cute test image
