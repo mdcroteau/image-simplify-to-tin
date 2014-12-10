@@ -62,42 +62,44 @@ void initialTriangulation(TIN* tin, Grid* g)
     tin->triangle = bottomLeft;
 }
 
-double linearlyInterpolate(Vertex* a, Vertex* b, Vertex* c, int row, int col) 
+double linearlyInterpolate(Vertex* a, Vertex* b, Vertex* c, int row, int col, char color)
 {
-    double abx= b->col - a->col;
+    double aValue, bValue, cValue;
+    
+    if (color == 'r') {
+        aValue = a->color.red;
+        bValue = b->color.red;
+        cValue = c->color.red;
+    }
+    else if (color == 'g') {
+        aValue = a->color.green;
+        bValue = b->color.green;
+        cValue = c->color.green;
+    }
+    else if (color == 'b') {
+        aValue = a->color.blue;
+        bValue = b->color.blue;
+        cValue = c->color.blue;
+    }
+    else {
+        printf("Wrong function usage.\n");
+        assert(0);
+    }
+    
+    double abx = b->col - a->col;
     double aby = b->row - a->row;
-    double abzR = b->red - a->color.red;
-
+    double abz = bValue - aValue;
+    
     double acx = c->col - a->col;
     double acy = c->row - a->row;
-    double aczR = c->red - a->color.red;
-
-    double crossxR = aby*aczR - abzR*acy;
-    double crossyR = abzR*acx - abx*aczR;
+    double acz = cValue - aValue;
+    
+    double crossx = aby*acz - abz*acy;
+    double crossy = abz*acx - abx*acz;
     double crossz = abx*acy - aby*acx;
-    double dR = -(crossxR*a->col + crossyR*a->row + crossz*a->color.red);
-    double finalR = (-crossxR*col - crossyR*row - dR) / crossz
+    double d = -(crossx*a->col + crossy*a->row + crossz*aValue);
     
-
-    double abzG = b->green - a->color.green;
-    double aczG = c->green - a->color.green;
-    
-    double crossxG = aby*aczG - abzG*acy;
-    double crossyG = abzG*acx - abx*aczG;
-    double dG = -(crossxG*a->col + crossyG*a->row + crossz*a->color.green);
-    double finalG = (-crossxG*col - crossyG*row - dG) / crossz
-
-    
-    double abzB = b->blue - a->color.blue;
-    double aczB = c->blue - a->color.blue;
-    
-    double crossxB = aby*aczB - abzB*acy;
-    double crossyB = abzB*acx - abx*aczB;
-    double dB = -(crossxB*a->col + crossyB*a->row + crossz*a->color.blue);
-    double finalB = (-crossxB*col - crossyB*row - dB) / crossz
-    
-    
-    return (finalR / 3 + finalG / 3 + finalB / 3);
+    return (-crossx*col - crossy*row - d) / crossz;
 }
 
 double computeError(Grid* g, Triangle* t, Vertex* v)
@@ -106,12 +108,16 @@ double computeError(Grid* g, Triangle* t, Vertex* v)
     Vertex* v2 = t->v2;
     Vertex* v3 = t->v3;
 
-    double fromTin = linearlyInterpolate(v1, v2, v3, v->row, v->col);
-    double error = fabs(fromTin - (get(g, v->row, v->col).red / 3.0 + get(g, v->row, v->col).green / 3.0 + get(g, v->row, v->col).blue / 3.0));
+    double fromTinRed = linearlyInterpolate(v1, v2, v3, v->row, v->col, 'r');
+    double fromTinGreen = linearlyInterpolate(v1, v2, v3, v->row, v->col, 'g');
+    double fromTinBlue = linearlyInterpolate(v1, v2, v3, v->row, v->col, 'b');
+    //printf("FromTin R G B: %f %f %f\n", fromTinRed, fromTinGreen, fromTinBlue);
+    double error = fabs(fromTinRed - get(g, v->row, v->col).red) / 3.0 + fabs(fromTinGreen - get(g, v->row, v->col).green) / 3.0 + fabs(fromTinBlue - get(g, v->row, v->col).blue) / 3.0;
+    //printf("FromPic R G B: %d %d %d\n", get(g, v->row, v->col).red, get(g, v->row, v->col).green, get(g, v->row, v->col).blue);
+    //printf("Calculated error: %f\n", error);
 
     if (0 > error || 255 < error) {
-        printf("Bad error calculated: %f, %f\n", fromTin, error);
-        printf("...for pixel: col, row, value: %d, %d, %d\n", v->col, v->row, get(g, v->row, v->col));
+        printf("Bad error calculated for pixel: col, row: %d, %d\n", v->col, v->row);
         assert(0);
     }
     return error;

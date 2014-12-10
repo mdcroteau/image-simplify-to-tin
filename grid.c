@@ -43,11 +43,11 @@ int readFileIntoGrid(Grid* grid, char* filename)
     if (!allocateGrid(grid, grid->rows, grid->cols))
         return 0;
 
-    for (i = 0; i < grid.nrows; i++) {
-        for (j = 0; j < grid.ncols; j++) {
-            grid->color[i][j].red = fgetc(f);
-            grid->color[i][j].green = fgetc(f);
-            grid->color[i][j].blue = fgetc(f);
+    for (i = 0; i < grid->rows; i++) {
+        for (j = 0; j < grid->cols; j++) {
+            fscanf(f, "%d ", &grid->color[i][j].red);
+            fscanf(f, "%d ", &grid->color[i][j].green);
+            fscanf(f, "%d ", &grid->color[i][j].blue);
         }
     }
 
