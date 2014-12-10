@@ -12,25 +12,54 @@
 #include <math.h>
 #include <assert.h>
 
-void initializeTriangle(Triangle *t, Grid* g, int row1, int col1, int row2, int col2, int row3, int col3) 
+void initialTriangulation(TIN* tin, Grid* g)
 {
-    // First vertex
-    t->v1 = (Vertex *) malloc(sizeof(Vertex));
-    t->v1->row = row1;
-    t->v1->col = col1;
-    t->v1->value = get(g, row1, col1);
-    
-    // Second vertex
-    t->v2 = (Vertex *) malloc(sizeof(Vertex));
-    t->v2->row = row2;
-    t->v2->col = col2;
-    t->v2->value = get(g, row2, col2);
-    
-    // Third vertex
-    t->v3 = (Vertex *) malloc(sizeof(Vertex));
-    t->v3->row = row3;
-    t->v3->col = col3;
-    t->v3->value = get(g, row3, col3);
+    // Top left vertex
+    Vertex* v1 = (Vertex *) malloc(sizeof(Vertex));
+    v1 = (Vertex *) malloc(sizeof(Vertex));
+    v1->row = 0;
+    v1->col = 0;
+    v1->value = get(g, v1->row, v1->col);
+
+    // Top right vertex
+    Vertex* v2 = (Vertex *) malloc(sizeof(Vertex));
+    v2 = (Vertex *) malloc(sizeof(Vertex));
+    v2->row = 0;
+    v2->col = g->cols - 1;
+    v2->value = get(g, v2->row, v2->col);
+
+    // Bottom left vertex
+    Vertex* v3 = (Vertex *) malloc(sizeof(Vertex));
+    v3 = (Vertex *) malloc(sizeof(Vertex));
+    v3->row = g->rows - 1;
+    v3->col = 0;
+    v3->value = get(g, v3->row, v3->col);
+
+    // Bottom right vertex
+    Vertex* v4 = (Vertex *) malloc(sizeof(Vertex));
+    v4 = (Vertex *) malloc(sizeof(Vertex));
+    v4->row = g->rows - 1;
+    v4->col = g->cols - 1;
+    v4->value = get(g, v4->row, v4->col);
+
+    // Bottom left triangle
+    Triangle* bottomLeft = (Triangle *) malloc(sizeof(Triangle));
+    bottomLeft->v1 = v1;
+    bottomLeft->v2 = v3;
+    bottomLeft->v3 = v4;
+
+    // Top right triangle
+    Triangle* topRight = (Triangle *) malloc(sizeof(Triangle));
+    topRight->v1 = v1;
+    topRight->v2 = v2;
+    topRight->v3 = v4;
+
+    // Link triangle together
+    bottomLeft->t3 = topRight;
+    topRight->t3 = bottomLeft;
+
+    // Initialize tin
+    tin->triangle = bottomLeft;
 }
 
 double linearlyInterpolate(Vertex* a, Vertex* b, Vertex* c, int row, int col) 
@@ -85,25 +114,114 @@ int triangleContains(Triangle* t, Vertex* v)
     return 0;
 }
 
+void connectThirdNeighborToInsideTriangle(Triangle* containing, 
+                                          Triangle* neighbor, 
+                                          Triangle* inside)
+{
+    if (neighbor->t1 == containing) {
+        printf("BConnect1\n");
+        neighbor->t1 = inside;
+    }
+    else if (neighbor->t2 == containing) {
+        printf("BConnect1\n");
+        neighbor->t2 = inside;
+    }
+    else { // if (neighbor->t3 == containing)
+        printf("BConnect1\n");
+        neighbor->t3 = inside;
+    }
+}
+
+int triangleHasTwoVertices(Triangle* t, Vertex* v1, Vertex* v2)
+{
+    printf("t: %d\n", t);
+    if (t) {
+        printf("tv1: %d\n", t->v1);
+        printf("tv2: %d\n", t->v2);
+        printf("tv3: %d\n", t->v3);
+    }
+    printf("v1: %d\n", v1);
+    printf("v2: %d\n", v2);
+    return (t && ((v1 == t->v1 && v2 == t->v2) || (v1 == t->v1 && v2 == t->v3) ||
+            (v1 == t->v2 && v2 == t->v1) || (v1 == t->v2 && v2 == t->v3) ||
+            (v1 == t->v3 && v2 == t->v1) || (v1 == t->v3 && v2 == t->v2)));
+}
+
+void connectTriangleToThirdNeighbor(Triangle* containing, Triangle* inside)
+{
+    if (triangleHasTwoVertices(containing->t1, inside->v1, inside->v2)) {
+        printf("Connect1\n");
+        inside->t3 = containing->t1;
+        connectThirdNeighborToInsideTriangle(containing, containing->t1, inside);
+    }
+    else if (triangleHasTwoVertices(containing->t2, inside->v1, inside->v2)) {
+        printf("Connect3\n");
+        inside->t3 = containing->t2;
+        connectThirdNeighborToInsideTriangle(containing, containing->t2, inside);
+    }
+    else if (triangleHasTwoVertices(containing->t3, inside->v1, inside->v2)) {
+        printf("Connect2\n");
+        inside->t3 = containing->t3;
+        connectThirdNeighborToInsideTriangle(containing, containing->t3, inside);
+    }
+    else {
+        inside->t3 = NULL;
+    }
+}
+
+void splitTriangle(TIN* tin, Triangle* t, Vertex* v)
+{
+    assert(t);
+    printf("Splitting triangle\n");
+    // Allocate memory for new triangles
+    Triangle* t1 = (Triangle *) malloc(sizeof(Triangle));
+    Triangle* t2 = (Triangle *) malloc(sizeof(Triangle));
+    Triangle* t3 = (Triangle *) malloc(sizeof(Triangle));
+
+    // Initialize t1
+    t1->v1 = t->v1;
+    t1->v2 = t->v2;
+    t1->v3 = v;
+
+    t1->t1 = t2;
+    t1->t2 = t3;
+
+    // Initialize t2
+    t2->v1 = t->v2;
+    t2->v2 = t->v3;
+    t2->v3 = v;
+
+    t2->t1 = t1;
+    t2->t2 = t3;
+
+    // Initialize t3
+    t3->v1 = t->v1;
+    t3->v2 = t->v3;
+    t3->v3 = v;
+
+    t3->t1 = t1;
+    t3->t2 = t2;
+
+    // Connect t1 to its third neighboring triangle
+    connectTriangleToThirdNeighbor(t, t1);
+    connectTriangleToThirdNeighbor(t, t2);
+    connectTriangleToThirdNeighbor(t, t3);
+
+    // Make sure that TIN points to a triangle still part of the TIN
+    tin->triangle = t1;
+}
+
 // TODO refactor and document
 TIN* simplify(TIN* tin, Grid* g, double epsilon) 
 {
     // Initialize TIN with 4 corner points
-    Triangle* bottomLeft = (Triangle *) malloc(sizeof(Triangle));
-    initializeTriangle(bottomLeft, g, 0, 0, g->rows - 1, 0, g->rows - 1, g->cols - 1);
+    initialTriangulation(tin, g);
 
-    Triangle* topRight = (Triangle *) malloc(sizeof(Triangle));
-    initializeTriangle(topRight, g, 0, 0, 0, g->cols - 1, g->rows - 1, g->cols - 1);
+    Triangle* bottomLeft = tin->triangle;
+    Triangle* topRight = bottomLeft->t3;
 
-    bottomLeft->t1 = NULL;
-    bottomLeft->t2 = NULL;
-    bottomLeft->t3 = topRight;
-
-    topRight->t1 = NULL;
-    topRight->t2 = NULL;
-    topRight->t3 = bottomLeft;
-
-    tin->triangle = bottomLeft;
+    printf("BL: %d\n", bottomLeft);
+    printf("TR: %d\n", topRight);
 
     // Priority queue for storing points and errors
     PriorityQueue* q = makeQueue();
@@ -176,50 +294,55 @@ TIN* simplify(TIN* tin, Grid* g, double epsilon)
         assert(containsLargestErrorVertex);
         printf("2\n");
 
-        Triangle* newT1 = (Triangle *) malloc(sizeof(Triangle));
-        Triangle* newT2 = (Triangle *) malloc(sizeof(Triangle));
-        Triangle* newT3 = (Triangle *) malloc(sizeof(Triangle));
+        /* Triangle* newT1 = (Triangle *) malloc(sizeof(Triangle)); */
+        /* Triangle* newT2 = (Triangle *) malloc(sizeof(Triangle)); */
+        /* Triangle* newT3 = (Triangle *) malloc(sizeof(Triangle)); */
 
-        // Initialize newT1
-        newT1->v1 = containsLargestErrorVertex->v1;
-        newT1->v2 = containsLargestErrorVertex->v2;
-        newT1->v3 = maxErrorVertex;
-        printf("3\n");
+        /* // Initialize newT1 */
+        /* newT1->v1 = containsLargestErrorVertex->v1; */
+        /* newT1->v2 = containsLargestErrorVertex->v2; */
+        /* newT1->v3 = maxErrorVertex; */
+        /* printf("3\n"); */
 
-        if (containsLargestErrorVertex->t1 != NULL)
-            containsLargestErrorVertex->t1->t1 = newT1;
-        newT1->t1 = containsLargestErrorVertex->t1;
-        newT1->t2 = newT2;
-        newT1->t3 = newT3;
-        printf("4\n");
+        /* if (containsLargestErrorVertex->t1 != NULL) */
+        /*     containsLargestErrorVertex->t1->t1 = newT1; */
+        /* newT1->t1 = containsLargestErrorVertex->t1; */
+        /* newT1->t2 = newT2; */
+        /* newT1->t3 = newT3; */
+        /* printf("4\n"); */
 
-        // Initialize newT2
-        newT2->v1 = maxErrorVertex;
-        newT2->v2 = containsLargestErrorVertex->v2;
-        newT2->v3 = containsLargestErrorVertex->v3;
-        printf("5\n");
+        /* // Initialize newT2 */
+        /* newT2->v1 = maxErrorVertex; */
+        /* newT2->v2 = containsLargestErrorVertex->v2; */
+        /* newT2->v3 = containsLargestErrorVertex->v3; */
+        /* printf("5\n"); */
 
-        if (containsLargestErrorVertex->t2 != NULL)
-            containsLargestErrorVertex->t2->t2 = newT2;
-        newT2->t1 = newT1;
-        newT2->t2 = containsLargestErrorVertex->t2;
-        newT2->t3 = newT3;
-        printf("6\n");
+        /* if (containsLargestErrorVertex->t2 != NULL) */
+        /*     containsLargestErrorVertex->t2->t2 = newT2; */
+        /* newT2->t1 = newT1; */
+        /* newT2->t2 = containsLargestErrorVertex->t2; */
+        /* newT2->t3 = newT3; */
+        /* printf("6\n"); */
 
-        // Initialize newT3
-        newT3->v1 = containsLargestErrorVertex->v1;
-        newT3->v2 = maxErrorVertex;
-        newT3->v3 = containsLargestErrorVertex->v3;
-        printf("7\n");
+        /* // Initialize newT3 */
+        /* newT3->v1 = containsLargestErrorVertex->v1; */
+        /* newT3->v2 = maxErrorVertex; */
+        /* newT3->v3 = containsLargestErrorVertex->v3; */
+        /* printf("7\n"); */
 
-        if (containsLargestErrorVertex->t3 != NULL)
-            containsLargestErrorVertex->t3->t3 = newT3;
-        newT3->t1 = newT1;
-        newT3->t2 = newT2;
-        newT3->t3 = containsLargestErrorVertex->t3;
-        printf("8\n");
+        /* if (containsLargestErrorVertex->t3 != NULL) */
+        /*     containsLargestErrorVertex->t3->t3 = newT3; */
+        /* newT3->t1 = newT1; */
+        /* newT3->t2 = newT2; */
+        /* newT3->t3 = containsLargestErrorVertex->t3; */
+        /* printf("8\n"); */
 
-        tin->triangle = newT1;
+        // Retriangulate
+        splitTriangle(tin, containsLargestErrorVertex, maxErrorVertex);
+
+        Triangle* newT1 = tin->triangle;
+        Triangle* newT2 = newT1->t1;
+        Triangle* newT3 = newT1->t2;
 
         // Compute errors of all points whose errors have changed
         LList* vertices = containsLargestErrorVertex->vList;
@@ -291,7 +414,7 @@ TIN* simplify(TIN* tin, Grid* g, double epsilon)
 
         // After retriangulation, free old triangle
         LList_free(containsLargestErrorVertex->vList);
-        free(containsLargestErrorVertex);
+        /* free(containsLargestErrorVertex); */
 
         // Set maxError to the error of the vertex with highest error in q
         maxErrorNode = removeTop(q);

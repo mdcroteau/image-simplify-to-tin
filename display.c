@@ -126,10 +126,10 @@ void renderScene(void)
     assert(t);
     Vertex* v = t->v1;
     // TODO remove after debugging
-    if (v == 0) { 
-        node = node->next;
-        continue;
-    }
+    /* if (v == 0) {  */
+    /*     node = node->next; */
+    /*     continue; */
+    /* } */
     assert(v);
     glBegin(GL_TRIANGLES);
 
