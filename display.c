@@ -117,38 +117,33 @@ void renderScene(void)
 
   // Iterate through list of triangles and draw them
   while(node != NULL){
-    //Color* c = node->oneC;
-    //Point* p = node->oneP;
     Triangle* t = node->item;
     assert(t);
     Vertex* v = t->v1;
     assert(v);
+    Color c = v->color;
+
     glBegin(GL_TRIANGLES);
 
-    //glColor3f(c->r, c->g, c->b);
-    //glVertex3f(mapX(p->x), mapY(p->y), 0.0);
-    glColor3f(v->value/max, v->value/max, v->value/max);
+    glColor3f(c.r/max, c.g/max, c.b/max);
+    //glColor3f(v->value/max, v->value/max, v->value/max);
     glVertex3f(mapX(v->col), mapY(v->row), 0.0);
 
-    //c = node->twoC;
-    //p = node->twoP;
     v = t->v2;
+    c = v->color;
 
-    //glColor3f(c->r, c->g, c->b);
-    //glVertex3f(mapX(p->x), mapY(p->y), 0.0);
-    glColor3f(v->value/max, v->value/max, v->value/max);
+    glColor3f(c.r/max, c.g/max, c.b/max);
+    //glColor3f(v->value/max, v->value/max, v->value/max);
     glVertex3f(mapX(v->col), mapY(v->row), 0.0);
 
-    //c = node->threeC;
-    //p = node->threeP;
     v = t->v3;
+    c = v->color;
 
-    //glColor3f(c->r, c->g, c->b);
-    //glVertex3f(mapX(p->x), mapY(p->y), 0.0);
-    glColor3f(v->value/max, v->value/max, v->value/max);
+    glColor3f(c.r/max, c.g/max, c.b/max);
+    //glColor3f(v->value/max, v->value/max, v->value/max);
     glVertex3f(mapX(v->col), mapY(v->row), 0.0);
     glEnd();
-    
+
     // Draw lines for debugging
     /* glColor3f(1.0, 0, 0); */
     /* glBegin(GL_LINES); */
