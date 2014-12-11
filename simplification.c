@@ -111,10 +111,8 @@ double computeError(Grid* g, Triangle* t, Vertex* v)
     double fromTinRed = linearlyInterpolate(v1, v2, v3, v->row, v->col, 'r');
     double fromTinGreen = linearlyInterpolate(v1, v2, v3, v->row, v->col, 'g');
     double fromTinBlue = linearlyInterpolate(v1, v2, v3, v->row, v->col, 'b');
-    //printf("FromTin R G B: %f %f %f\n", fromTinRed, fromTinGreen, fromTinBlue);
+    
     double error = fabs(fromTinRed - get(g, v->row, v->col).red) / 3.0 + fabs(fromTinGreen - get(g, v->row, v->col).green) / 3.0 + fabs(fromTinBlue - get(g, v->row, v->col).blue) / 3.0;
-    //printf("FromPic R G B: %d %d %d\n", get(g, v->row, v->col).red, get(g, v->row, v->col).green, get(g, v->row, v->col).blue);
-    //printf("Calculated error: %f\n", error);
 
     if (0 > error || 255 < error) {
         printf("Bad error calculated for pixel: col, row: %d, %d\n", v->col, v->row);
